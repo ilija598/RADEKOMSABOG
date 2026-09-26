@@ -6,3 +6,5 @@ dist/
 !.env.example
 *.log
 .npm-cache/
+/0922.mp4
+/0924.mp4

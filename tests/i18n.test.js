@@ -73,7 +73,7 @@ test('single layout renders both languages with complete translation bindings an
     assert.equal((html.match(/<video /g) || []).length, 2);
     assert.equal((html.match(/preload="metadata"/g) || []).length, 2);
     for (const index of ['01', '02']) {
-      assert.match(html, new RegExp(`/videos/failed-challenge-${index}\\.mp4`));
+      assert.match(html, new RegExp(`/videos/failed-challenge-${index}\\.m4v`));
       assert.match(html, new RegExp(`/videos/failed-challenge-${index}\\.jpg`));
     }
     assert.match(html, /name="radekomsa-challenger"/);
