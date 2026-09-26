@@ -1,3 +1,4 @@
+import { submitSignup } from './signup-api.js';
 import { validateChallenger } from './validation.js';
 import { isPursuitLocked, pursuitRemainingMs, HERESY_WARNING_COUNT } from './challenger-gates.js';
 import { createHeresyWarnings } from './heresy-warnings.js';
@@ -131,7 +132,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     believesRadeMortal: draft.believesRadeMortal,
     betterThanRade: draft.betterThanRade,
     challengerName: draft.challengerName,
-    mmr: Number(draft.mmr),
+    mmr: draft.mmr.trim() ? Number(draft.mmr) : NaN,
     description: draft.description,
   });
 
@@ -274,26 +275,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
   }
 
   async function saveSubmission() {
-    const netlifyEnabled = import.meta.env.VITE_SUBMISSION_BACKEND === 'netlify' || location.hostname.endsWith('.netlify.app');
-    if (!netlifyEnabled) return { ok: false, code: 'netlifyPreview' };
-    form.elements.submittedAt.value = new Date().toISOString();
-    const data = new URLSearchParams();
-    for (const [name, value] of new FormData(form)) data.append(name, String(value));
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-    try {
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: data.toString(),
-        signal: controller.signal,
-      });
-      return response.ok ? { ok: true } : { ok: false, code: 'unavailable' };
-    } catch (error) {
-      return { ok: false, code: error.name === 'AbortError' ? 'timeout' : 'network' };
-    } finally {
-      clearTimeout(timeout);
-    }
+    return submitSignup({ steamNick: draft.challengerName.trim(), description: draft.description.trim(), mmr: draft.mmr.trim() ? Number(draft.mmr) : NaN }, { language: i18n.language });
   }
 
   form.addEventListener('focusin', announce, { once: true });

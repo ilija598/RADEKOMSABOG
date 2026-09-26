@@ -1,2 +1,2 @@
-# Copy to .dev.vars and replace with a random secret (32+ characters).
-IP_HASH_SALT="replace-with-a-long-random-local-secret"
+# No runtime secrets are required for signup. Configure the DB binding in wrangler.toml.
+# Keep any future local secrets in .dev.vars (ignored by Git).

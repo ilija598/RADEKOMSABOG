@@ -1,8 +1,8 @@
 export const errors = {
   sr: {
     invalidBody: 'Pošalji ispravne podatke za prijavu.',
-    nick: 'Steam nick mora imati od 1 do 64 znaka, bez kontrolnih znakova.',
-    link: 'Unesi HTTPS Steam Community link: /id/tvoj-nick ili /profiles/tvoj-17-cifreni-id, bez dodatnih parametara.',
+    nick: 'Steam nick mora imati od 1 do 100 znakova, bez kontrolnih znakova.',
+    link: 'Unesi HTTPS link sa steamcommunity.com ili www.steamcommunity.com, sa putanjom /id/ ili /profiles/.',
     mmr: 'MMR mora biti ceo broj između 0 i 20.000.',
     method: 'Ovaj metod nije dozvoljen.',
     origin: 'Prijave sa drugih sajtova nisu dozvoljene.',
@@ -17,12 +17,11 @@ export const errors = {
     answers: 'Odgovori na sva pitanja pre završne presude.',
     challengerName: 'Ime mora imati od 1 do 80 znakova, bez kontrolnih znakova.',
     description: 'Napiši kratak razlog, do 500 znakova.',
-    netlifyPreview: 'Čuvanje prijava radi na Netlify deployu. Lokalni pregled nije poslao podatke.',
   },
   en: {
     invalidBody: 'Send a valid signup object.',
-    nick: 'Steam Nick must contain 1–64 characters without control characters.',
-    link: 'Enter an HTTPS Steam Community link: /id/your-name or /profiles/your-17-digit-id, without extra parameters.',
+    nick: 'Steam Nick must contain 1–100 characters without control characters.',
+    link: 'Enter an HTTPS link on steamcommunity.com or www.steamcommunity.com with a path starting with /id/ or /profiles/.',
     mmr: 'MMR must be a whole number between 0 and 20,000.',
     method: 'Method not allowed.',
     origin: 'Cross-origin submissions are not accepted.',
@@ -37,6 +36,5 @@ export const errors = {
     answers: 'Answer every question before the final judgment.',
     challengerName: 'Name must contain 1–80 characters without control characters.',
     description: 'Write a short reason of up to 500 characters.',
-    netlifyPreview: 'Submissions are saved on the Netlify deployment. This local preview did not send data.',
   },
 };

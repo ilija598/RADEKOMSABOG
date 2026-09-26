@@ -4,7 +4,7 @@ import { createI18n, translations, lookup, LANGUAGE_KEY } from '../src/i18n.js';
 import { createLayout } from '../src/layout.js';
 import { radeQuotes, pickQuote } from '../src/content/quotes.js';
 import { errors } from '../src/content/errors.js';
-import { onRequest } from '../functions/api/signup.js';
+import { onRequest, onRequestPost } from '../functions/api/signup.js';
 
 function keys(value, prefix = '') {
   return Object.entries(value).flatMap(([key, entry]) => {
@@ -77,8 +77,7 @@ test('single layout renders both languages with complete translation bindings an
       assert.match(html, new RegExp(`/videos/failed-challenge-${index}\\.jpg`));
     }
     assert.match(html, /name="radekomsa-challenger"/);
-    assert.match(html, /data-netlify="true"/);
-    assert.match(html, /name="form-name" value="radekomsa-challenger"/);
+    assert.doesNotMatch(html, /data-netlify|form-name/);
     for (const field of ['immortalWorthy', 'believesRadeMortal', 'betterThanRade', 'challengerName', 'mmr', 'description', 'lieYesAttempts', 'superiorityEvades', 'submissionLanguage', 'submittedAt', 'website']) assert.match(html, new RegExp(`name="${field}"`));
     assert.equal((html.match(/class="form-step/g) || []).length, 5);
     assert.equal((html.match(/data-faq-id=/g) || []).length, translations[language].faq.entries.length);
@@ -99,11 +98,11 @@ test('quotes are centralized, bilingual, audio-ready but silent; signup always w
 });
 test('API returns translated errors and stable codes without weakening validation', async () => {
   for (const language of ['sr', 'en']) {
-    const request = new Request('https://example.com/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept-Language': language }, body: JSON.stringify({ steamNick: 'Test', steamLink: 'https://steamcommunity.com/id/test', mmr: 20001 }) });
-    const response = await onRequest({ request, env: {} });
+    const request = new Request('https://example.com/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept-Language': language }, body: JSON.stringify({ steamNick: 'Test', description: 'A worthy challenger', mmr: 20001 }) });
+    const response = await onRequestPost({ request, env: {} });
     assert.equal(response.status, 400);
     assert.equal(response.headers.get('Content-Language'), language);
-    assert.deepEqual(await response.json(), { success: false, errorCode: 'mmr', error: errors[language].mmr });
+    assert.deepEqual(await response.json(), { success: false, error: errors[language].mmr });
   }
   const fallback = await onRequest({ request: new Request('https://example.com/api/signup'), env: {} });
   assert.equal((await fallback.json()).error, errors.sr.method);

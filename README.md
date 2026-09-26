@@ -1,87 +1,101 @@
 # RADE KOMŠA — BOG MIDLEJNA
 
-A deliberately absurd, bilingual Egyptian Dota 2 challenger temple. The frontend is vanilla HTML/CSS/JavaScript built with Vite; the home page drives users toward a dedicated `#challenge` screen with the prize explanation and a five-step, Typeform-style application saved to Netlify Forms.
+Vanilla JavaScript and Vite frontend with Cloudflare Pages Functions and Cloudflare D1. Serbian and English copy, lore, animations, the five-step challenger flow, five Anubis warnings and 300-second YES lock are retained.
 
-## Challenger protocol
+## Install and configure
 
-The primary CTA is **IZAZOVI FARAONA I OSVOJI 50E**. It opens the challenge page: left side explains how to win the 50 euro joke prize, right side contains the application form.
-
-The flow contains four answer steps and a final review/submit step:
-
-1. Immortality and worthiness, YES/NO.
-2. Belief that Rade is not immortal. Either answer opens five themed Anubis warnings in a native, custom-styled modal dialog. Each requires OK; only the fifth OK records the originally selected answer and advances. Escape cancels without answering; reopening starts with the first warning. Text lives in `signup.heresyWarnings.entries` in both dictionaries.
-3. Whether the challenger is better than Rade. YES evades pointer attempts and cannot be selected for 300 seconds from the first opening of this step. Click, touch, Enter and Space use the same time lock. After exactly five minutes, YES stops moving and becomes selectable. NO remains available immediately. The countdown start is saved in the draft, so reloading or going back does not reset it. The elapsed wall-clock time continues while the tab is hidden. Reduced-motion mode keeps the time lock without moving the button.
-4. Name or nick, Dota 2 MMR, and a short reason.
-5. Review every answer, go back if needed, or submit the final application.
-
-The current step, answers, fields, and interaction counters are written to `localStorage` under `radekomsa-challenger-draft:v1` on every change. Reloading the page restores the draft. A confirmed Netlify submission removes the local draft.
-
-The timer is a client-side joke interaction, not a server-side security control. Its boundary logic and five-warning sequence are covered by deterministic tests; no five-minute sleep is needed in the test suite. `src/challenger-gates.js` owns the duration and warning count; `src/heresy-warnings.js` owns the modal sequence. Keep both language arrays at five entries when editing the copy.
-
-## Develop locally
-
-Requirements: Node.js 22.12+ and npm.
+Use Node.js 22.12+ and npm. Run commands from the repository root.
 
 ```sh
 npm install
+npx wrangler login
+npx wrangler d1 create rade-challengers
+```
+
+The repository is already configured for the created `rade-challengers` database, with both remote migrations applied. Skip database creation on this account. For a different Cloudflare account, create your own database and replace `database_id` in `wrangler.toml` with its returned UUID. Keep `binding = "DB"`, `database_name = "rade-challengers"` and `migrations_dir = "migrations"`. The UUID identifies the database; it is not a secret. No runtime secrets or submission-backend environment variables are required. Wrangler authentication is required for remote operations.
+
+## Local development
+
+Create the local database and build the frontend:
+
+```sh
+npx wrangler d1 migrations apply DB --local
+npm run build
+npm run dev:api
+```
+
+The last command runs `wrangler pages dev dist --port 8788`, serving the built site and real Pages Function with local D1 at http://localhost:8788. Local data remains under `.wrangler/state` and is separate from production.
+
+For frontend hot reload, leave that terminal running and open another:
+
+```sh
 npm run dev
 ```
 
-Vite normally serves the site at [http://127.0.0.1:5173](http://127.0.0.1:5173). Local Vite development intentionally does not fake a successful save: the final button shows that persistence is active only on the Netlify deployment. All form behavior before submission works locally.
+Open http://127.0.0.1:5173. Vite proxies `/api` to Wrangler on port 8788. Vite alone cannot save applications: the Wrangler process and migrated local database must also be running. Rebuild to update the frontend served directly by Wrangler.
 
-## Deploy to Netlify
+## Deploy to Cloudflare Pages
 
-The repository includes `netlify.toml`, so Git-based deployment needs no custom build settings:
+After configuring the real database UUID, apply the production migration:
 
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Node: `22.12.0`
-- Submission backend: `netlify`
-
-In Netlify, choose **Add new project**, import this Git repository, and deploy. The Vite build prerenders the form into `dist/index.html`, allowing Netlify to detect the `radekomsa-challenger` form during deployment. After the first production deploy, send one test application and confirm it appears in the project's Forms area.
-
-Saved submission fields:
-
-```text
-immortalWorthy
-believesRadeMortal
-betterThanRade
-challengerName
-mmr
-description
-lieYesAttempts
-superiorityEvades
-submissionLanguage
-submittedAt
+```sh
+npx wrangler d1 migrations apply DB --remote
 ```
 
-The form includes Netlify's honeypot field. For this joke site's expected low traffic, the free-tier form inbox is the simplest review surface and avoids operating a database or admin app.
+Create the Pages project once (skip if it already exists):
 
-## Checks
+```sh
+npx wrangler pages project create rade-komsa --production-branch main
+```
+
+Build and deploy from the repository root so Wrangler discovers `functions/` and `wrangler.toml`:
+
+```sh
+npm run build
+npx wrangler pages deploy dist --project-name rade-komsa --branch main
+```
+
+The D1 binding is declared in `wrangler.toml`; no separate Worker is needed. Do not upload only `dist` using dashboard drag-and-drop, because this project requires Pages Functions. Alternatively, connect the GitHub repository to Pages with build command `npm run build`, output directory `dist`, repository root as the root directory and Node.js 22.12+. Apply remote migrations before deploying code that needs them.
+
+Existing databases: migrations already recorded as applied are not rerun when their file changes. Migration 0002 upgrades the original Steam-based table, preserving existing IDs, nicks, links, MMR and timestamps. It adds the reason and makes the legacy Steam link optional. Apply both migrations in order; do not reset production data.
+
+## API and storage
+
+`POST /api/signup` accepts `Content-Type: application/json`:
+
+```json
+{"steamNick":"xX_MidGod_420_Xx","description":"I am worthy of mid.","mmr":5000}
+```
+
+The server trims the nick (required, maximum 100 characters), requires a trimmed reason (maximum 500 characters), and requires an integer MMR from 0 through 20000. It uses a parameterized D1 INSERT and returns success only after the write finishes.
+
+- Success: HTTP 200, `{"success":true}`.
+- Invalid input: HTTP 400, `{"success":false,"error":"..."}`.
+- Unexpected failure: HTTP 500, `{"success":false,"error":"Internal server error"}`.
+- Unsupported methods return 405; cross-origin browser submissions return 403. Request bodies are bounded to 8 KiB.
+
+New applications store only nick, reason, MMR, an automatic ID and creation time. The three YES/NO answers are not included in the API payload. There is no public endpoint for reading challengers. The browser retains an unfinished local draft and removes it only after confirmed success. A request timeout can mean the write completed; the client does not automatically retry.
+
+The five-minute lock is a client-side joke, not an anti-spam guarantee. No CAPTCHA or distributed rate limiter is included.
+
+## Checks and structure
 
 ```sh
 npm test
 npm run build
 ```
 
-Tests cover both translation dictionaries, static Netlify form detection, the new challenger payload, the retained API validation, request protections, and the existing mythology/quote behavior.
-
-## Existing Cloudflare endpoint
-
-`functions/api/signup.js`, `wrangler.toml`, and the D1 migration are retained for backward compatibility with the previous Steam-based signup API. The new five-step frontend does not call that endpoint. It can be removed in a later cleanup after any existing Cloudflare deployment is retired.
-
-## Structure
+Tests cover validation, the exact API contract, parameterized writes, safe failure handling, frontend request behavior, bilingual content and the existing challenger interactions.
 
 ```text
-index.html                         Vite entry and prerender target
-netlify.toml                       Netlify build and submission configuration
-src/layout.js                      Semantic bilingual page and static form contract
-src/challenger-form.js             Step state, local draft, interactions, submission
-src/challenger-form.css            Responsive Typeform-style protocol UI
-src/main.js                        Global page behavior and form initialization
-src/content/sr.js                  Serbian copy
-src/content/en.js                  English copy
-src/validation.js                  Shared pure validation
-tests/                             Node built-in tests
-functions/api/signup.js            Retained legacy Cloudflare Pages Function
+src/layout.js                       Shared bilingual markup
+src/challenger-form.js              Form state, draft and animations
+src/signup-api.js                   JSON submission and response handling
+src/validation.js                   Pure validation
+src/content/sr.js, en.js            Editable copy and lore
+functions/api/signup.js             Pages Function using env.DB
+migrations/                        Initial schema and compatible reason upgrade
+wrangler.toml                      Pages and D1 configuration
 ```
+
+Deployment references: [Pages configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/), [D1 commands](https://developers.cloudflare.com/d1/wrangler-commands/), [Pages Functions](https://developers.cloudflare.com/pages/functions/get-started/).

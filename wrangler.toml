@@ -5,5 +5,5 @@ compatibility_date = "2026-09-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "rade-challengers"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "dac868ac-7526-4ee9-b843-ef3fef27a0a0"
 migrations_dir = "migrations"
