@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateChallenger, validateSignup } from '../src/validation.js';
-import { pickEvasivePosition, shouldEvade } from '../src/challenger-form.js';
+import { pickEvasivePosition } from '../src/challenger-form.js';
 import { onRequest } from '../functions/api/signup.js';
 
 const valid = { steamNick: 'Test Challenger', steamLink: 'https://steamcommunity.com/id/test_player', mmr: 5000 };
@@ -31,16 +31,6 @@ test('validates and normalizes the five-step challenger payload', () => {
   for (const challengerName of ['', ' ', 'x'.repeat(81), '\u0000Rade']) assert.equal(validateChallenger({ ...challenger, challengerName }).errorCode, 'challengerName');
   for (const description of ['', ' ', 'x'.repeat(501), 'Rade\u0000']) assert.equal(validateChallenger({ ...challenger, description }).errorCode, 'description');
   for (const mmr of [-1, 20001, 1.5, '5000']) assert.equal(validateChallenger({ ...challenger, mmr }).errorCode, 'mmr');
-});
-test('the superiority answer always evades three times, then stays with a one-in-20 roll', () => {
-  for (const previousEvades of [0, 1, 2]) {
-    assert.equal(shouldEvade(previousEvades, () => 0), true);
-    assert.equal(shouldEvade(previousEvades, () => 1), true);
-  }
-  assert.equal(shouldEvade(3, () => 0), false);
-  assert.equal(shouldEvade(50, () => (1 / 20) - Number.EPSILON), false);
-  assert.equal(shouldEvade(3, () => 1 / 20), true);
-  assert.equal(shouldEvade(3, () => .9), true);
 });
 test('an evasive answer is positioned outside the current pointer zone before it is rendered', () => {
   const rolls = [0, 0, 1, 1];

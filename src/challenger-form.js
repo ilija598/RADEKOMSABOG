@@ -1,14 +1,11 @@
 import { validateChallenger } from './validation.js';
+import { isPursuitLocked, pursuitRemainingMs, HERESY_WARNING_COUNT } from './challenger-gates.js';
+import { createHeresyWarnings } from './heresy-warnings.js';
 
 export const CHALLENGER_DRAFT_KEY = 'radekomsa-challenger-draft:v1';
 
 const TOTAL_STEPS = 5;
-const LIE_ATTEMPTS_REQUIRED = 30;
-const GUARANTEED_EVADES = 3;
-const STAY_CHANCE = 1 / 20;
 const choice = value => value === 'yes' || value === 'no' ? value : '';
-
-export const shouldEvade = (previousEvades, random = Math.random) => previousEvades < GUARANTEED_EVADES || random() >= STAY_CHANCE;
 
 export function pickEvasivePosition({ arenaWidth, arenaHeight, buttonWidth, buttonHeight, pointerX, pointerY, random = Math.random }) {
   const padding = 14;
@@ -50,6 +47,7 @@ const blankDraft = () => ({
   description: '',
   lieYesAttempts: 0,
   superiorityEvades: 0,
+  superiorityStartedAt: 0,
 });
 
 function loadDraft(storage) {
@@ -66,9 +64,12 @@ function loadDraft(storage) {
       challengerName: typeof value.challengerName === 'string' ? value.challengerName.slice(0, 80) : '',
       mmr: typeof value.mmr === 'string' || typeof value.mmr === 'number' ? String(value.mmr).slice(0, 5) : '',
       description: typeof value.description === 'string' ? value.description.slice(0, 500) : '',
-      lieYesAttempts: Math.min(LIE_ATTEMPTS_REQUIRED, Math.max(0, Number.parseInt(value.lieYesAttempts, 10) || 0)),
+      lieYesAttempts: Math.min(HERESY_WARNING_COUNT, Math.max(0, Number.parseInt(value.lieYesAttempts, 10) || 0)),
       superiorityEvades: Math.min(100000, Math.max(0, Number.parseInt(value.superiorityEvades, 10) || 0)),
+      superiorityStartedAt: Number.isFinite(value.superiorityStartedAt) && value.superiorityStartedAt > 0 && value.superiorityStartedAt <= Date.now() ? value.superiorityStartedAt : 0,
     };
+    // An old saved YES cannot bypass the new timer when a draft is restored.
+    if (draft.betterThanRade === 'yes' && isPursuitLocked(draft.superiorityStartedAt)) draft.betterThanRade = '';
     if (!draft.immortalWorthy) draft.step = 1;
     else if (!draft.believesRadeMortal) draft.step = Math.min(draft.step, 2);
     else if (!draft.betterThanRade) draft.step = Math.min(draft.step, 3);
@@ -100,9 +101,17 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
   let errorCode = null;
   let stageIndex = 0;
   let survival = null;
-  let evasiveReady = false;
+  let blockedAttempt = false;
   let transitionTimer;
   let judgmentTimer;
+  const warnings = createHeresyWarnings({
+    dialog: $('#heresy-dialog'),
+    i18n,
+    onConfirm(answer) {
+      draft.lieYesAttempts = HERESY_WARNING_COUNT;
+      selectAnswer('believesRadeMortal', answer);
+    },
+  });
 
   const protocolEvent = stage => document.dispatchEvent(new CustomEvent('rade:protocol', { detail: { stage, language: i18n.language } }));
   const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -134,12 +143,27 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     form.elements.submissionLanguage.value = i18n.language;
   }
 
-  function updateTruthChoices() {
-    const ratio = draft.lieYesAttempts / LIE_ATTEMPTS_REQUIRED;
-    const choices = document.querySelector('.truth-choices');
-    choices.style.setProperty('--truth-shrink', String(ratio * .6));
-    choices.style.setProperty('--truth-grow', String(ratio * .55));
-    choices.style.setProperty('--truth-grow-mobile', String(ratio * .28));
+  function updatePursuit() {
+    if (draft.step === 3 && !draft.superiorityStartedAt) {
+      draft.superiorityStartedAt = Date.now();
+      saveDraft();
+    }
+    const remaining = pursuitRemainingMs(draft.superiorityStartedAt);
+    const locked = remaining > 0;
+    betterYes.setAttribute('aria-disabled', String(locked));
+    betterYes.classList.toggle('is-locked', locked);
+    const status = i18n.t(locked ? 'signup.pursuit.locked' : 'signup.pursuit.unlocked');
+    if ($('#pursuit-status').textContent !== status) $('#pursuit-status').textContent = status;
+    const seconds = Math.ceil(remaining / 1000);
+    $('#pursuit-clock').textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+    $('#pursuit-countdown').hidden = !locked;
+    const feedback = blockedAttempt && locked ? i18n.t('signup.pursuit.denied') : '';
+    if ($('#pursuit-feedback').textContent !== feedback) $('#pursuit-feedback').textContent = feedback;
+    if (!locked) {
+      // Stop evading and return to a predictable, reachable position.
+      betterYes.style.removeProperty('left');
+      betterYes.style.removeProperty('top');
+    }
   }
 
   function updateReview() {
@@ -168,7 +192,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     submitButton.hidden = draft.step !== 5;
     document.querySelectorAll('[data-answer]').forEach(button => button.setAttribute('aria-pressed', String(draft[button.dataset.answer] === button.dataset.value)));
     $('#description-count').textContent = `${i18n.format(draft.description.length)} / 500`;
-    updateTruthChoices();
+    updatePursuit();
     updateReview();
     if (errorCode && !errorBox.hidden) errorBox.textContent = i18n.t(`errors.${errorCode}`);
     if (survival !== null) $('#survival').textContent = `${i18n.format(survival, 1)}%`;
@@ -180,16 +204,19 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     errorCode = null;
     errorBox.hidden = true;
     draft.step = Math.min(TOTAL_STEPS, Math.max(1, step));
-    if (draft.step !== 3) evasiveReady = false;
     saveDraft();
     render({ focus });
   }
 
   function selectAnswer(name, value) {
+    // All activation paths (including keyboard and synthetic clicks) share the gate.
+    if (name === 'betterThanRade' && value === 'yes' && isPursuitLocked(draft.superiorityStartedAt)) return;
+    clearTimeout(transitionTimer);
     draft[name] = value;
     saveDraft();
     render();
-    transitionTimer = setTimeout(() => goToStep(draft.step + 1), isMotionPaused() ? 0 : 220);
+    const nextStep = draft.step + 1;
+    transitionTimer = setTimeout(() => goToStep(nextStep), isMotionPaused() ? 0 : 220);
   }
 
   function showError(code, field) {
@@ -216,11 +243,9 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
   }
 
   function moveEvasiveChoice(event) {
-    if (!shouldEvade(draft.superiorityEvades)) {
-      evasiveReady = true;
-      return false;
-    }
-    evasiveReady = false;
+    if (draft.step !== 3 || !isPursuitLocked(draft.superiorityStartedAt)) return false;
+    // Keep the time lock, but remove chasing motion for reduced-motion users.
+    if (isMotionPaused()) return true;
     const arenaRect = arena.getBoundingClientRect();
     const buttonRect = betterYes.getBoundingClientRect();
     const position = pickEvasivePosition({
@@ -236,7 +261,6 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     betterYes.style.top = `${position.y}px`;
     draft.superiorityEvades += 1;
     saveDraft();
-    render();
     return true;
   }
 
@@ -283,26 +307,35 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     render();
   });
   form.querySelectorAll('[data-answer="immortalWorthy"]').forEach(button => button.addEventListener('click', () => selectAnswer('immortalWorthy', button.dataset.value)));
-  lieNo.addEventListener('click', () => selectAnswer('believesRadeMortal', 'no'));
-  lieYes.addEventListener('click', () => {
-    if (draft.lieYesAttempts < LIE_ATTEMPTS_REQUIRED) {
-      draft.lieYesAttempts += 1;
-      saveDraft();
-      render();
-      lieYes.classList.remove('is-denied');
-      requestAnimationFrame(() => lieYes.classList.add('is-denied'));
-      return;
-    }
-    selectAnswer('believesRadeMortal', 'yes');
-  });
+  lieNo.addEventListener('click', () => { if (draft.step === 2) warnings.show('no'); });
+  lieYes.addEventListener('click', () => { if (draft.step === 2) warnings.show('yes'); });
   betterNo.addEventListener('click', () => selectAnswer('betterThanRade', 'no'));
-  betterYes.addEventListener('mouseenter', event => { if (!evasiveReady) moveEvasiveChoice(event); });
+  betterYes.addEventListener('mouseenter', moveEvasiveChoice);
   betterYes.addEventListener('pointerdown', event => {
-    if (event.pointerType !== 'mouse' && !evasiveReady && moveEvasiveChoice(event)) event.preventDefault();
+    if (isPursuitLocked(draft.superiorityStartedAt)) {
+      event.preventDefault();
+      blockedAttempt = true;
+      moveEvasiveChoice(event);
+      updatePursuit();
+    }
   });
   betterYes.addEventListener('click', event => {
-    if (event.detail !== 0 && !evasiveReady && moveEvasiveChoice(event)) return;
+    if (isPursuitLocked(draft.superiorityStartedAt)) {
+      event.preventDefault();
+      blockedAttempt = true;
+      moveEvasiveChoice(event);
+      updatePursuit();
+      return;
+    }
     selectAnswer('betterThanRade', 'yes');
+  });
+  // Enter/Space must not bypass the same five-minute wait as pointer activation.
+  betterYes.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && isPursuitLocked(draft.superiorityStartedAt)) {
+      event.preventDefault();
+      blockedAttempt = true;
+      updatePursuit();
+    }
   });
   backButton.addEventListener('click', () => goToStep(draft.step - 1));
   nextButton.addEventListener('click', () => {
@@ -354,18 +387,25 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     form.hidden = false;
     form.reset();
     draft = blankDraft();
+    blockedAttempt = false;
     survival = null;
     goToStep(1);
     $('#challenge').scrollIntoView({ behavior: isMotionPaused() ? 'instant' : 'smooth' });
   });
 
   render();
+  const pursuitTick = setInterval(() => {
+    if (draft.step === 3 && !document.hidden) updatePursuit();
+  }, 250);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && draft.step === 3) updatePursuit(); });
+  window.addEventListener('pagehide', event => { if (!event.persisted) clearInterval(pursuitTick); });
   return {
     announce,
     refresh() {
       form.elements.submissionLanguage.value = i18n.language;
       $('#processing-text').textContent = stageIndex < i18n.t('signup.stages').length ? i18n.t(`signup.stages.${stageIndex}`) : i18n.t('signup.awaiting');
       render();
+      warnings.refresh();
     },
   };
 }

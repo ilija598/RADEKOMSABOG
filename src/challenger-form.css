@@ -713,3 +713,181 @@
 @media (prefers-reduced-motion: reduce) {
   .truth-choices .choice-button { transition: none; }
 }
+
+/* The pharaoh's five-minute permission slip. */
+.evasive-yes[aria-disabled='true'] {
+  cursor: not-allowed;
+  border-style: dashed;
+  color: #d8ba87;
+  background: #b9904214;
+}
+
+.evasive-yes[aria-disabled='false'] {
+  border-color: #79e8d5;
+  box-shadow: 0 0 24px #79e8d52b;
+}
+
+.pursuit-info {
+  margin: 18px 0 24px;
+  padding: 15px;
+  border: 1px solid #d9b66d38;
+  background: linear-gradient(115deg, #d9b66d0d, #a67aff08);
+}
+
+#pursuit-status {
+  margin: 0 0 11px;
+  color: #e5c17e;
+  font: 8px/1.7 var(--mono);
+  letter-spacing: .7px;
+}
+
+.pursuit-countdown {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #baaac9;
+  font: 8px/1.6 var(--mono);
+  letter-spacing: 1px;
+}
+
+.pursuit-countdown strong {
+  color: #ffe2a2;
+  font: bold 28px/1.2 var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 20px #c89b423f;
+}
+
+.pursuit-feedback {
+  min-height: 16px;
+  margin: 8px 0;
+  color: #c8a3f2;
+  font: 9px/1.7 var(--mono);
+}
+
+.pursuit-info small {
+  display: block;
+  color: #b4a8bd;
+  font-size: 9px;
+  line-height: 1.7;
+}
+
+/* Native dialog semantics and focus containment, entirely custom temple styling. */
+.heresy-dialog {
+  width: min(540px, calc(100vw - 32px));
+  max-height: calc(100dvh - 40px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid #f1cd80;
+  color: #f7e4b8;
+  background: radial-gradient(ellipse at 50% 24%, #85633526, transparent 55%), linear-gradient(135deg, #192038, #1e1428 70%, #14101c);
+  box-shadow: 0 0 0 6px #dfb75f10, 0 0 65px #dbad462e, 0 30px 100px #000a;
+  overflow: auto;
+}
+
+.heresy-dialog::backdrop {
+  background: #040711d9;
+  backdrop-filter: blur(5px);
+}
+
+.heresy-dialog[open] {
+  animation: reveal .2s ease-out;
+}
+
+.heresy-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 22px;
+  border-bottom: 1px solid #d9b66d50;
+  background: #d9b66d08;
+  color: #eacb86;
+  font: 8px/1.6 var(--mono);
+  letter-spacing: 1px;
+}
+
+.heresy-heading > span:first-child {
+  font-size: 28px;
+  text-shadow: 0 0 20px #f2c76c55;
+}
+
+.heresy-heading .micro {
+  margin-left: auto;
+  white-space: nowrap;
+  color: #ba9edc;
+  font-size: 8px;
+}
+
+.heresy-body {
+  padding: 25px 34px 29px;
+  text-align: center;
+}
+
+.heresy-seal {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 21px;
+  border: 1px solid #d9b66d60;
+  border-radius: 50%;
+  outline: 1px dashed #d9b66d30;
+  outline-offset: 6px;
+  color: #eaca85;
+  background: #c0984710;
+  font-size: 48px;
+  text-shadow: 0 0 25px #e3af4b66;
+}
+
+.heresy-dialog h3 {
+  margin: 0 0 18px;
+  color: #ffe3a4;
+  font-size: clamp(21px, 4.5vw, 29px);
+  line-height: 1.17;
+  letter-spacing: -.5px;
+  text-wrap: balance;
+}
+
+.heresy-dialog p {
+  min-height: 105px;
+  color: #d5c6dc;
+  font-size: 14px;
+  line-height: 1.9;
+  margin: 0 0 23px;
+}
+
+.heresy-ok {
+  width: 100%;
+  justify-content: center;
+  font: bold 15px var(--mono);
+  letter-spacing: 4px;
+}
+
+.heresy-body small {
+  display: block;
+  color: #b8a8bf;
+  font: 8px/1.8 var(--mono);
+  margin-top: 17px;
+}
+
+.heresy-progress {
+  height: 3px;
+  background: #ffffff0d;
+}
+
+.heresy-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #c190ed, #ffdf91);
+  box-shadow: 0 0 12px #e4c27666;
+  transition: width .2s ease-out;
+}
+
+@media (max-width: 480px) {
+  .heresy-heading { padding: 13px 16px; gap: 9px; font-size: 6px; letter-spacing: .6px; }
+  .heresy-heading .micro { font-size: 7px; }
+  .heresy-body { padding: 24px 22px; }
+  .heresy-dialog p { font-size: 12px; min-height: 110px; }
+  .heresy-body small { font-size: 7px; }
+  .heresy-seal { width: 62px; height: 62px; font-size: 39px; }
+}

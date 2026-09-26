@@ -9,12 +9,14 @@ The primary CTA is **IZAZOVI FARAONA I OSVOJI 50E**. It opens the challenge page
 The flow contains four answer steps and a final review/submit step:
 
 1. Immortality and worthiness, YES/NO.
-2. Belief that Rade is not immortal. YES shrinks and NO grows for 30 attempts; YES unlocks on click 31.
-3. Whether the challenger is better than Rade. YES always evades the first three approaches, then has a 1-in-20 chance to stay still for a click.
+2. Belief that Rade is not immortal. Either answer opens five themed Anubis warnings in a native, custom-styled modal dialog. Each requires OK; only the fifth OK records the originally selected answer and advances. Escape cancels without answering; reopening starts with the first warning. Text lives in `signup.heresyWarnings.entries` in both dictionaries.
+3. Whether the challenger is better than Rade. YES evades pointer attempts and cannot be selected for 300 seconds from the first opening of this step. Click, touch, Enter and Space use the same time lock. After exactly five minutes, YES stops moving and becomes selectable. NO remains available immediately. The countdown start is saved in the draft, so reloading or going back does not reset it. The elapsed wall-clock time continues while the tab is hidden. Reduced-motion mode keeps the time lock without moving the button.
 4. Name or nick, Dota 2 MMR, and a short reason.
 5. Review every answer, go back if needed, or submit the final application.
 
 The current step, answers, fields, and interaction counters are written to `localStorage` under `radekomsa-challenger-draft:v1` on every change. Reloading the page restores the draft. A confirmed Netlify submission removes the local draft.
+
+The timer is a client-side joke interaction, not a server-side security control. Its boundary logic and five-warning sequence are covered by deterministic tests; no five-minute sleep is needed in the test suite. `src/challenger-gates.js` owns the duration and warning count; `src/heresy-warnings.js` owns the modal sequence. Keep both language arrays at five entries when editing the copy.
 
 ## Develop locally
 
