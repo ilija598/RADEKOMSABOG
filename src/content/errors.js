@@ -14,6 +14,10 @@ export const errors = {
     timeout: 'Potvrda kasni. Prijava je možda sačuvana; sačekaj pre novog pokušaja.',
     network: 'Veza je prekinuta. Prijava je možda sačuvana; sačekaj pre novog pokušaja.',
     required: 'Popuni sva tri polja. Proročanstvo nije zamena za podatke.',
+    answers: 'Odgovori na sva pitanja pre završne presude.',
+    challengerName: 'Ime mora imati od 1 do 80 znakova, bez kontrolnih znakova.',
+    description: 'Napiši kratak razlog, do 500 znakova.',
+    netlifyPreview: 'Čuvanje prijava radi na Netlify deployu. Lokalni pregled nije poslao podatke.',
   },
   en: {
     invalidBody: 'Send a valid signup object.',
@@ -30,5 +34,9 @@ export const errors = {
     timeout: 'Confirmation timed out. Your entry may have been saved; wait before trying again.',
     network: 'Connection interrupted. Your entry may have been saved; wait before trying again.',
     required: 'Complete all three fields. Prophecy is not a substitute for data.',
+    answers: 'Answer every question before the final judgment.',
+    challengerName: 'Name must contain 1–80 characters without control characters.',
+    description: 'Write a short reason of up to 500 characters.',
+    netlifyPreview: 'Submissions are saved on the Netlify deployment. This local preview did not send data.',
   },
 };

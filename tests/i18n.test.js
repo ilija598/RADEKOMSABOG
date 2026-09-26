@@ -32,7 +32,7 @@ test('defaults to Serbian, persists choices, ignores invalid choices, works with
   const storage = { getItem: key => store.get(key), setItem: (key, value) => store.set(key, value) };
   const first = createI18n(storage);
   assert.equal(first.language, 'sr');
-  assert.equal(first.t('hero.cta'), 'IZAZOVI RADETA');
+  assert.equal(first.t('hero.cta'), 'IZAZOVI FARAONA I OSVOJI 50E');
   first.setLanguage('en');
   assert.equal(store.get(LANGUAGE_KEY), 'en');
   assert.equal(createI18n(storage).language, 'en');
@@ -41,7 +41,7 @@ test('defaults to Serbian, persists choices, ignores invalid choices, works with
   const blocked = createI18n({ getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } });
   assert.equal(blocked.language, 'sr');
   blocked.setLanguage('en');
-  assert.equal(blocked.t('hero.cta'), 'CHALLENGE RADE');
+  assert.equal(blocked.t('hero.cta'), 'CHALLENGE THE PHARAOH AND WIN 50E');
   assert.equal(createI18n().language, 'sr');
 });
 test('number formatting follows current language', () => {
@@ -59,7 +59,21 @@ test('single layout renders both languages with complete translation bindings an
     const html = createLayout(i18n);
     for (const match of html.matchAll(/data-i18n(?:-placeholder|-aria-label)?="([^"]+)"/g)) assert.equal(typeof lookup(language, match[1]), 'string');
     assert.equal((html.match(/<form /g) || []).length, 1);
-    for (const field of ['steamNick', 'steamLink', 'mmr', 'website']) assert.match(html, new RegExp(`name="${field}"`));
+    assert.match(html, /id="challenge"/);
+    assert.match(html, /class="[^"]*challenge-page[^"]*"/);
+    assert.match(html, /href="#challenge"/);
+    assert.equal((html.match(/class="[^"]*bait-cta/g) || []).length, 4);
+    for (const bait of ['challenge', 'immortal', 'better', 'noob']) {
+      assert.match(html, new RegExp(`data-i18n="bait\\.${bait}"`));
+    }
+    assert.doesNotMatch(html, /class="technology|class="mythology|class="archaeology|class="chess section/);
+    assert.ok(html.indexOf('id="challenge"') < html.indexOf('id="why"'));
+    assert.ok(html.indexOf('id="why"') < html.indexOf('id="faq"'));
+    assert.match(html, /name="radekomsa-challenger"/);
+    assert.match(html, /data-netlify="true"/);
+    assert.match(html, /name="form-name" value="radekomsa-challenger"/);
+    for (const field of ['immortalWorthy', 'believesRadeMortal', 'betterThanRade', 'challengerName', 'mmr', 'description', 'lieYesAttempts', 'superiorityEvades', 'submissionLanguage', 'submittedAt', 'website']) assert.match(html, new RegExp(`name="${field}"`));
+    assert.equal((html.match(/class="form-step/g) || []).length, 5);
     assert.equal((html.match(/data-faq-id=/g) || []).length, translations[language].faq.entries.length);
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
     assert.equal(new Set(ids).size, ids.length, 'HTML IDs must remain unique');
