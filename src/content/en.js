@@ -44,6 +44,13 @@ export default {
     { title: 'ENTER THE PAPYRI', text: 'Even defeat leaves a mark. Your name joins the mortals who approached the pharaoh and still clicked final submit.', label: 'ARCHIVE OF THE BRAVE AND UNWISE' },
   ] },
   science: { label: 'THE SCIENCE IS SETTLED™', text: '“After billions of neural simulations, no reliable evidence of a superior midlaner has been discovered.”', author: '— RADE INSTITUTE OF RADE-RELATED RESEARCH' },
+  failures: {
+    eyebrow: '03 / ARCHIVE OF REJECTED MORTALS', title: 'FAILED\nCHALLENGES', description: 'Before claiming your 50 euros, observe what happened to those who believed they could dispute the prophecy.', unsupported: 'Your browser cannot display this archival record.',
+    entries: [
+      { title: 'ARCHIVAL RECORD 0922', verdict: 'JUDGMENT: THE TEMPLE IS UNIMPRESSED', aria: 'Play failed challenge video, archival record 0922' },
+      { title: 'ARCHIVAL RECORD 0924', verdict: 'JUDGMENT: THE PHARAOH REMAINS UNCHALLENGED', aria: 'Play failed challenge video, archival record 0924' },
+    ],
+  },
   bait: {
     challenge: 'CHALLENGE',
     immortal: 'PROVE HE IS NOT IMMORTAL',
@@ -80,7 +87,7 @@ export default {
     stages: ['CONNECTING TO THE ANCIENT SERVER...', 'SCANNING STEAM IDENTITY...', 'CALIBRATING MMR...', 'ANALYZING MIDLANE DELUSION...', 'CONSULTING ANUBIS...', 'SIMULATING 14,882,943 MATCHUPS...', 'RADE NEURAL CORE IS PASSING JUDGMENT...'],
     acceptedLabel: 'JUDGMENT RECORDED', accepted: 'APPLICATION ACCEPTED.', acceptedText: 'Your name is inscribed in the Book of Challengers.', survival: 'Predicted survival probability:', survivalNote: 'An oracle prediction. No scientific value.', luck: 'Good luck.\nYou will require it.', return: 'RETURN TO THE MORTAL REALM', stamp: 'WORTHY OF AN ATTEMPT', stampNote: 'Worthy of an attempt does not mean worthy of Rade.', judgmentLabel: 'ANUBIS HAS WEIGHED YOUR MMR',
   },
-  faq: { eyebrow: '03 / ANSWERS CARVED IN STONE', title: 'QUESTIONS FREQUENTLY\nASKED BY MORTALS', description: 'Doubt is human. The answers are final.', entries: [
+  faq: { eyebrow: '04 / ANSWERS CARVED IN STONE', title: 'QUESTIONS FREQUENTLY\nASKED BY MORTALS', description: 'Doubt is human. The answers are final.', entries: [
     { id: 'doctor', question: 'IS RADE KOMŠA A DOCTOR?', answer: 'YES.\nRADE KOMŠA IS A DOCTOR OF EVERY HERO.\nHis diploma has not been recovered because paper was invented after his specialization.' },
     { id: 'heroes', question: 'DOES RADE KOMŠA PLAY EVERY HERO?', answer: 'Wrong question.\nThe heroes play for RADE.' },
     { id: 'main', question: 'WHAT IS RADE’S MAIN HERO?', answer: 'DOTA 2.' },

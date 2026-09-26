@@ -557,6 +557,85 @@
   margin: 16px 0 0;
 }
 
+.failures {
+  padding-top: 56px;
+}
+
+.failures .section-heading {
+  align-items: center;
+}
+
+.failures .section-heading > p {
+  max-width: 440px;
+}
+
+.failure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.failure-record {
+  min-width: 0;
+  border: 1px solid #b5905442;
+  border-radius: 4px;
+  background: linear-gradient(145deg, #151b2ad9, #100d17f2);
+  box-shadow: 0 16px 45px #0004;
+  overflow: hidden;
+}
+
+.failure-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #05070c;
+  overflow: hidden;
+}
+
+.failure-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #05070c;
+}
+
+.failure-index {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 7px 9px;
+  border: 1px solid #e7c4785c;
+  background: #080a11d9;
+  color: #e7c478;
+  font: 7px var(--mono);
+  letter-spacing: 1px;
+  pointer-events: none;
+}
+
+.failure-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 74px;
+  padding: 17px 19px;
+  border-top: 1px solid #d8b46826;
+}
+
+.failure-caption h3 {
+  margin: 0;
+  color: #ead6ac;
+  font-size: 12px;
+}
+
+.failure-caption > span {
+  max-width: 240px;
+  color: #a996b9;
+  font: 7px/1.6 var(--mono);
+  letter-spacing: .7px;
+  text-align: right;
+}
+
 @keyframes denied {
   0%, 100% { translate: 0; }
   35% { translate: -7px; }
@@ -575,6 +654,7 @@
   .reward-slab span { font-size: 38px; }
   .protocol-panel { min-height: 620px; }
   .form-step h3 { font-size: 27px; }
+  .failure-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
@@ -625,6 +705,9 @@
   .evasive-arena .choice-button { width: 108px; }
   .review-list > div { grid-template-columns: 1fr; gap: 5px; }
   .step-actions .button { min-width: 145px; padding-inline: 16px; }
+  .failures { padding-top: 40px; }
+  .failure-caption { align-items: flex-start; flex-direction: column; gap: 8px; min-height: 0; }
+  .failure-caption > span { max-width: none; text-align: left; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -68,7 +68,14 @@ test('single layout renders both languages with complete translation bindings an
     }
     assert.doesNotMatch(html, /class="technology|class="mythology|class="archaeology|class="chess section/);
     assert.ok(html.indexOf('id="challenge"') < html.indexOf('id="why"'));
-    assert.ok(html.indexOf('id="why"') < html.indexOf('id="faq"'));
+    assert.ok(html.indexOf('id="why"') < html.indexOf('id="failures"'));
+    assert.ok(html.indexOf('id="failures"') < html.indexOf('id="faq"'));
+    assert.equal((html.match(/<video /g) || []).length, 2);
+    assert.equal((html.match(/preload="metadata"/g) || []).length, 2);
+    for (const index of ['01', '02']) {
+      assert.match(html, new RegExp(`/videos/failed-challenge-${index}\\.mp4`));
+      assert.match(html, new RegExp(`/videos/failed-challenge-${index}\\.jpg`));
+    }
     assert.match(html, /name="radekomsa-challenger"/);
     assert.match(html, /data-netlify="true"/);
     assert.match(html, /name="form-name" value="radekomsa-challenger"/);

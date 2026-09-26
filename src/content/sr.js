@@ -46,6 +46,13 @@ export default {
     { title: 'UĐI U PAPIRUSE', text: 'Čak i poraz ostavlja trag. Tvoje ime biće uklesano među smrtnike koji su prišli faraonu i ipak kliknuli final submit.', label: 'ARHIVA HRABRIH I NERAZUMNIH' },
   ] },
   science: { label: 'NAUKA JE REKLA SVOJE™', text: '„Nakon milijardi neuralnih simulacija, nije pronađen pouzdan dokaz o postojanju boljeg midlejnera.”', author: '— RADETOV INSTITUT ZA ISTRAŽIVANJE RADETA' },
+  failures: {
+    eyebrow: '03 / ARHIVA ODBIJENIH SMRTNIKA', title: 'NEUSPEŠNI\nCHALLENGI', description: 'Pre nego što zatražiš svojih 50 evra, pogledaj šta se desilo onima koji su verovali da mogu da ospore proročanstvo.', unsupported: 'Tvoj pregledač ne može da prikaže ovaj arhivski zapis.',
+    entries: [
+      { title: 'ARHIVSKI ZAPIS 0922', verdict: 'PRESUDA: HRAM NIJE IMPRESIONIRAN', aria: 'Pusti video neuspešnog challenga, arhivski zapis 0922' },
+      { title: 'ARHIVSKI ZAPIS 0924', verdict: 'PRESUDA: FARAON OSTAJE NEOSPOREN', aria: 'Pusti video neuspešnog challenga, arhivski zapis 0924' },
+    ],
+  },
   bait: {
     challenge: 'IZAZOVI',
     immortal: 'DOKAŽI DA NIJE IMORTAL',
@@ -82,7 +89,7 @@ export default {
     stages: ['POVEZIVANJE SA DREVNIM SERVEROM...', 'SKENIRANJE STEAM PROFILA...', 'PROVERA MMR-a...', 'ANALIZA SAMOPOUZDANJA...', 'KONSULTOVANJE ANUBISA...', 'SIMULACIJA 14.882.943 MEČA...', 'RADE NEURAL CORE DONOSI PRESUDU...'],
     acceptedLabel: 'PRESUDA JE ZABELEŽENA', accepted: 'IZAZOV JE PRIHVAĆEN.', acceptedText: 'Tvoje ime je upisano u Knjigu Izazivača.', survival: 'Predviđena verovatnoća preživljavanja:', survivalNote: 'Proračun proročanstva. Bez naučne vrednosti.', luck: 'Srećno.\nTrebaće ti.', return: 'POVRATAK U SVET SMRTNIKA', stamp: 'DOSTOJAN POKUŠAJA', stampNote: 'Dostojnost pokušaja ne podrazumeva dostojnost Radeta.', judgmentLabel: 'ANUBIS JE IZMERIO TVOJ MMR',
   },
-  faq: { eyebrow: '03 / ODGOVORI UKLESANI U KAMEN', title: 'PITANJA KOJA SMRTNICI\nČESTO POSTAVLJAJU', description: 'Sumnja je ljudska. Odgovori su konačni.', entries: [
+  faq: { eyebrow: '04 / ODGOVORI UKLESANI U KAMEN', title: 'PITANJA KOJA SMRTNICI\nČESTO POSTAVLJAJU', description: 'Sumnja je ljudska. Odgovori su konačni.', entries: [
     { id: 'doctor', question: 'DA LI JE RADE KOMŠA DOKTOR?', answer: 'DA.\nRADE KOMŠA JE DOKTOR SVAKOG HEROJA.\nDiploma nije pronađena jer je papir izmišljen nakon njegove specijalizacije.' },
     { id: 'heroes', question: 'DA LI RADE KOMŠA IGRA SVAKOG HEROJA?', answer: 'Pogrešno pitanje.\nHeroji igraju za RADETA.' },
     { id: 'main', question: 'KOJI JE RADETOV MAIN HERO?', answer: 'DOTA 2.' },
