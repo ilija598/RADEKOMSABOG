@@ -1,3 +1,4 @@
+import { isSteamId64 } from './steam-profile.js';
 import './style.css';
 import './challengers.css';
 import { createI18n } from './i18n.js';
@@ -34,7 +35,7 @@ function renderRows() {
     const top = element('div', undefined, 'tablet-heading');
     top.append(element('span', `𓆣 / ${String(row.id).padStart(4, '0')}`, 'micro gold'), element('span', t(row.defeated_at ? 'defeated' : 'pending'), 'verdict-state'));
     card.append(top, element('h2', row.steam_nick));
-    if (typeof row.steam_id === 'string' && /^7656119\d{10}$/.test(row.steam_id)) {
+    if (isSteamId64(row.steam_id)) {
       const profile = element('a', `SteamID64: ${row.steam_id}`, 'steam-profile-link');
       profile.href = `https://steamcommunity.com/profiles/${row.steam_id}`;
       profile.target = '_blank';

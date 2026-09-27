@@ -1,6 +1,9 @@
 // Only SteamID64 is accepted. Do not accept profile URLs or vanity names here.
-export const isSteamId64 = value => typeof value === 'string'
-  && /^7656119\d{10}$/.test(value.trim());
+export const isSteamId64 = value => {
+  if (typeof value !== 'string' || !/^\d{17}$/.test(value.trim())) return false;
+  const id = BigInt(value.trim());
+  return id >= 76561197960265728n && id <= 76561202255233023n;
+};
 
 export async function getSteamNickname(steamId, apiKey, fetchImpl = fetch) {
   if (!isSteamId64(steamId) || !apiKey) throw new Error('Steam lookup unavailable');

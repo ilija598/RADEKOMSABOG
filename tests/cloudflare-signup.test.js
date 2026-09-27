@@ -27,6 +27,8 @@ const request = (body = valid, options = {}) => new Request('https://example.com
 });
 
 test('accepts trimmed SteamID64 and reason with integer boundaries', () => {
+  assert.ok(validateSignup({ ...valid, steamId: '76561202255233023' }).value);
+  assert.equal(validateSignup({ ...valid, steamId: '76561202255233024' }).errorCode, 'steamId');
   for (const mmr of [0, 20000]) {
     assert.deepEqual(validateSignup({ ...valid, steamId: '  76561198000000000  ', description: '  Reason  ', mmr }).value, { ...valid, steamId: '76561198000000000', description: 'Reason', mmr });
   }
