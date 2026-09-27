@@ -46,10 +46,10 @@ export async function onRequestPost(context) {
     catch (error) { return failure(request, error.message === 'large' ? 'large' : 'invalidBody'); }
     const checked = validateSignup(data);
     if (checked.error) return failure(request, checked.errorCode);
-    const { steamNick, description, mmr } = checked.value;
+    const { steamNick, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade } = checked.value;
     const result = await context.env.DB.prepare(
-      'INSERT INTO challengers (steam_nick, description, mmr) VALUES (?, ?, ?)',
-    ).bind(steamNick, description, mmr).run();
+      'INSERT INTO challengers (steam_nick, description, mmr, immortal_worthy, believes_rade_mortal, better_than_rade) VALUES (?, ?, ?, ?, ?, ?)',
+    ).bind(steamNick, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade).run();
     if (!result.success) throw new Error('Write failed');
     return json({ success: true });
   } catch {

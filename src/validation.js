@@ -8,7 +8,11 @@ export function validateSignup(data) {
   if (typeof steamNick !== 'string' || !steamNick.trim() || steamNick.trim().length > 100 || /[\u0000-\u001f\u007f]/.test(steamNick)) return invalid('nick');
   if (typeof description !== 'string' || !description.trim() || description.trim().length > 500 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(description)) return invalid('description');
   if (!Number.isInteger(mmr) || mmr < 0 || mmr > 20000) return invalid('mmr');
-  return { value: { steamNick: steamNick.trim(), description: description.trim(), mmr } };
+  const { immortalWorthy, believesRadeMortal, betterThanRade } = data;
+  for (const answer of [immortalWorthy, believesRadeMortal, betterThanRade]) {
+    if (answer !== 'da' && answer !== 'ne') return invalid('answers');
+  }
+  return { value: { steamNick: steamNick.trim(), description: description.trim(), mmr, immortalWorthy, believesRadeMortal, betterThanRade } };
 }
 
 export function validateChallenger(data) {

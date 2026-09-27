@@ -4,7 +4,7 @@ import { onRequest, onRequestPost } from '../functions/api/signup.js';
 import { validateSignup } from '../src/validation.js';
 import { submitSignup } from '../src/signup-api.js';
 
-const valid = { steamNick: 'Test Challenger', description: 'I am worthy of mid.', mmr: 5000 };
+const valid = { steamNick: 'Test Challenger', description: 'I am worthy of mid.', mmr: 5000, immortalWorthy: 'da', believesRadeMortal: 'ne', betterThanRade: 'da' };
 const request = (body = valid, options = {}) => new Request('https://example.com/api/signup', {
   method: 'POST', ...options,
   headers: { 'Content-Type': 'application/json', Origin: 'https://example.com', ...options.headers },
@@ -13,7 +13,7 @@ const request = (body = valid, options = {}) => new Request('https://example.com
 
 test('accepts trimmed nick and reason with integer boundaries', () => {
   for (const mmr of [0, 20000]) {
-    assert.deepEqual(validateSignup({ steamNick: '  Player  ', description: '  Reason  ', mmr }).value, { steamNick: 'Player', description: 'Reason', mmr });
+    assert.deepEqual(validateSignup({ ...valid, steamNick: '  Player  ', description: '  Reason  ', mmr }).value, { ...valid, steamNick: 'Player', description: 'Reason', mmr });
   }
 });
 
@@ -51,9 +51,9 @@ test('D1 writes are parameterized, trimmed and awaited before success', async ()
   const write = new Promise(resolve => { finishWrite = resolve; });
   const input = { ...valid, steamNick: "  O'Brien; DROP TABLE challengers;--  " };
   const DB = { prepare(sql) {
-    assert.equal(sql, 'INSERT INTO challengers (steam_nick, description, mmr) VALUES (?, ?, ?)');
+    assert.equal(sql, 'INSERT INTO challengers (steam_nick, description, mmr, immortal_worthy, believes_rade_mortal, better_than_rade) VALUES (?, ?, ?, ?, ?, ?)');
     return { bind(...args) {
-      assert.deepEqual(args, [input.steamNick.trim(), input.description, input.mmr]);
+      assert.deepEqual(args, [input.steamNick.trim(), input.description, input.mmr, input.immortalWorthy, input.believesRadeMortal, input.betterThanRade]);
       return { run: () => write };
     } };
   } };
@@ -78,9 +78,9 @@ test('missing bindings, exceptions and unsuccessful D1 writes return the exact g
   }
 });
 
-test('frontend sends only the three requested fields as JSON to /api/signup', async () => {
+test('frontend sends the six required fields as JSON to /api/signup', async () => {
   let calls = 0;
-  const result = await submitSignup({ ...valid, immortalWorthy: 'yes' }, {
+  const result = await submitSignup({ ...valid, steamLink: 'must not be sent' }, {
     language: 'en',
     fetchImpl: async (url, options) => {
       calls++;
@@ -112,4 +112,15 @@ test('frontend timeout returns uncertainty instead of retrying the write', async
   } });
   assert.deepEqual(result, { ok: false, code: 'timeout' });
   assert.equal(calls, 1);
+});
+
+test('all three answers must be literal da/ne, never booleans or defaults', async () => {
+  for (const key of ['immortalWorthy', 'believesRadeMortal', 'betterThanRade']) {
+    for (const value of [undefined, null, true, false, 0, 1, '', 'yes', 'no', 'DA']) {
+      const response = await onRequestPost({ request: request({ ...valid, [key]: value }), env: { DB: { prepare() { assert.fail('Invalid answer reached DB'); } } } });
+      assert.equal(response.status, 400);
+      assert.equal(response.headers.get('X-Error-Code'), 'answers');
+    }
+    for (const value of ['da', 'ne']) assert.equal(validateSignup({ ...valid, [key]: value }).value[key], value);
+  }
 });

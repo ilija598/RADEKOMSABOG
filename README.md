@@ -64,7 +64,7 @@ Existing databases: migrations already recorded as applied are not rerun when th
 `POST /api/signup` accepts `Content-Type: application/json`:
 
 ```json
-{"steamNick":"xX_MidGod_420_Xx","description":"I am worthy of mid.","mmr":5000}
+{"steamNick":"xX_MidGod_420_Xx","description":"I am worthy of mid.","mmr":5000,"immortalWorthy":"da","believesRadeMortal":"ne","betterThanRade":"ne"}
 ```
 
 The server trims the nick (required, maximum 100 characters), requires a trimmed reason (maximum 500 characters), and requires an integer MMR from 0 through 20000. It uses a parameterized D1 INSERT and returns success only after the write finishes.
@@ -74,7 +74,7 @@ The server trims the nick (required, maximum 100 characters), requires a trimmed
 - Unexpected failure: HTTP 500, `{"success":false,"error":"Internal server error"}`.
 - Unsupported methods return 405; cross-origin browser submissions return 403. Request bodies are bounded to 8 KiB.
 
-New applications store only nick, reason, MMR, an automatic ID and creation time. The three YES/NO answers are not included in the API payload. There is no public endpoint for reading challengers. The browser retains an unfinished local draft and removes it only after confirmed success. A request timeout can mean the write completed; the client does not automatically retry.
+New applications store nick, reason, MMR, all three answers, an automatic ID and creation time. Answers are required literal `da`/`ne` strings, independently of the UI language. Columns: `immortal_worthy`, `believes_rade_mortal`, `better_than_rade`. Migration 0003 removes `steam_link` and adds these CHECK-constrained columns. Existing applications retain NULL answers because those answers were never stored; new API submissions cannot omit them. There is no public endpoint for reading challengers. The browser retains an unfinished local draft and removes it only after confirmed success. A request timeout can mean the write completed; the client does not automatically retry.
 
 The five-minute lock is a client-side joke, not an anti-spam guarantee. No CAPTCHA or distributed rate limiter is included.
 

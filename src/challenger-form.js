@@ -275,7 +275,8 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
   }
 
   async function saveSubmission() {
-    return submitSignup({ steamNick: draft.challengerName.trim(), description: draft.description.trim(), mmr: draft.mmr.trim() ? Number(draft.mmr) : NaN }, { language: i18n.language });
+    const answers = Object.fromEntries(['immortalWorthy', 'believesRadeMortal', 'betterThanRade'].map(key => [key, draft[key] === 'yes' ? 'da' : draft[key] === 'no' ? 'ne' : '']));
+    return submitSignup({ ...answers, steamNick: draft.challengerName.trim(), description: draft.description.trim(), mmr: draft.mmr.trim() ? Number(draft.mmr) : NaN }, { language: i18n.language });
   }
 
   form.addEventListener('focusin', announce, { once: true });
