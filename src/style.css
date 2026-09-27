@@ -1,2 +1,5 @@
 @import url('./theme.css');
 @import url('./challenger-form.css');
+
+/* Keep the archive reachable from the mobile header too. */
+@media(max-width:800px){.header nav{display:flex;font-size:9px;gap:0}.header nav a:not(.challengers-nav){display:none}}

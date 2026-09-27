@@ -74,7 +74,7 @@ The server trims the nick (required, maximum 100 characters), requires a trimmed
 - Unexpected failure: HTTP 500, `{"success":false,"error":"Internal server error"}`.
 - Unsupported methods return 405; cross-origin browser submissions return 403. Request bodies are bounded to 8 KiB.
 
-New applications store nick, reason, MMR, all three answers, an automatic ID and creation time. Answers are required literal `da`/`ne` strings, independently of the UI language. Columns: `immortal_worthy`, `believes_rade_mortal`, `better_than_rade`. Migration 0003 removes `steam_link` and adds these CHECK-constrained columns. Existing applications retain NULL answers because those answers were never stored; new API submissions cannot omit them. There is no public endpoint for reading challengers. The browser retains an unfinished local draft and removes it only after confirmed success. A request timeout can mean the write completed; the client does not automatically retry.
+New applications store nick, reason, MMR, all three answers, an automatic ID and creation time. Answers are required literal `da`/`ne` strings, independently of the UI language. Columns: `immortal_worthy`, `believes_rade_mortal`, `better_than_rade`. Migration 0003 removes `steam_link` and adds these CHECK-constrained columns. Existing applications retain NULL answers because those answers were never stored; new API submissions cannot omit them. The public `/challengeri` page lists applications through `GET /api/challengers`, paginated in batches of 50. Public fields are explicitly selected; future private database columns are never automatically exposed. Migration 0004 adds the permanent verdict timestamp. The browser retains an unfinished local draft and removes it only after confirmed success. A request timeout can mean the write completed; the client does not automatically retry.
 
 The five-minute lock is a client-side joke, not an anti-spam guarantee. No CAPTCHA or distributed rate limiter is included.
 
@@ -99,3 +99,7 @@ wrangler.toml                      Pages and D1 configuration
 ```
 
 Deployment references: [Pages configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/), [D1 commands](https://developers.cloudflare.com/d1/wrangler-commands/), [Pages Functions](https://developers.cloudflare.com/pages/functions/get-started/).
+
+## Public verdicts
+
+Anyone can press YES on `/challengeri`; no login is required. `POST /api/challengers/:id/defeat` atomically sets `defeated_at` only when it is NULL. Repeated or simultaneous requests return the original timestamp without changing it. There is no public undo endpoint. The archive renders submitted text with `textContent`, not HTML. Both languages share the same verdict.

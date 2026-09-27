@@ -6,6 +6,7 @@ import { createLayout } from './src/layout.js';
 // Prerender the default language from the same dictionaries, including social metadata.
 // Runtime i18n updates these nodes in place without replacing the form.
 export default defineConfig({
+  build: { rollupOptions: { input: { home: 'index.html', challengeri: 'challengeri.html' } } },
   plugins: [{
     name: 'rade-default-language',
     transformIndexHtml(html) {
