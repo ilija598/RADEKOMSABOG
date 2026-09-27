@@ -34,6 +34,13 @@ function renderRows() {
     const top = element('div', undefined, 'tablet-heading');
     top.append(element('span', `𓆣 / ${String(row.id).padStart(4, '0')}`, 'micro gold'), element('span', t(row.defeated_at ? 'defeated' : 'pending'), 'verdict-state'));
     card.append(top, element('h2', row.steam_nick));
+    if (typeof row.steam_id === 'string' && /^7656119\d{10}$/.test(row.steam_id)) {
+      const profile = element('a', `SteamID64: ${row.steam_id}`, 'steam-profile-link');
+      profile.href = `https://steamcommunity.com/profiles/${row.steam_id}`;
+      profile.target = '_blank';
+      profile.rel = 'noopener noreferrer';
+      card.append(profile);
+    }
     const mmr = element('div', undefined, 'challenger-mmr');
     mmr.append(element('strong', i18n.format(row.mmr)), element('span', t('mmr'), 'micro'));
     card.append(mmr, element('h3', t('reason'), 'micro gold'), element('p', row.description, 'challenger-reason'));

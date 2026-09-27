@@ -1,8 +1,9 @@
 export const errors = {
   sr: {
     invalidBody: 'Pošalji ispravne podatke za prijavu.',
-    nick: 'Steam nick mora imati od 1 do 100 znakova, bez kontrolnih znakova.',
-    link: 'Unesi HTTPS link sa steamcommunity.com ili www.steamcommunity.com, sa putanjom /id/ ili /profiles/.',
+    steamId: 'Unesi SteamID64: 17 cifara koje počinju sa 7656119, bez linka.',
+    steamNotFound: 'Steam profil nije pronađen ili Steam nije vratio nick.',
+    steamUnavailable: 'Steam trenutno nije dostupan. Pokušaj ponovo kasnije.',
     mmr: 'MMR mora biti ceo broj između 0 i 20.000.',
     method: 'Ovaj metod nije dozvoljen.',
     origin: 'Prijave sa drugih sajtova nisu dozvoljene.',
@@ -15,13 +16,13 @@ export const errors = {
     network: 'Veza je prekinuta. Prijava je možda sačuvana; sačekaj pre novog pokušaja.',
     required: 'Popuni sva tri polja. Proročanstvo nije zamena za podatke.',
     answers: 'Odgovori na sva pitanja pre završne presude.',
-    challengerName: 'Ime mora imati od 1 do 80 znakova, bez kontrolnih znakova.',
     description: 'Napiši kratak razlog, do 500 znakova.',
   },
   en: {
     invalidBody: 'Send a valid signup object.',
-    nick: 'Steam Nick must contain 1–100 characters without control characters.',
-    link: 'Enter an HTTPS link on steamcommunity.com or www.steamcommunity.com with a path starting with /id/ or /profiles/.',
+    steamId: 'Enter a SteamID64: 17 digits starting with 7656119, without a URL.',
+    steamNotFound: 'Steam profile was not found or Steam did not return a nickname.',
+    steamUnavailable: 'Steam is unavailable right now. Please try again later.',
     mmr: 'MMR must be a whole number between 0 and 20,000.',
     method: 'Method not allowed.',
     origin: 'Cross-origin submissions are not accepted.',
@@ -34,7 +35,6 @@ export const errors = {
     network: 'Connection interrupted. Your entry may have been saved; wait before trying again.',
     required: 'Complete all three fields. Prophecy is not a substitute for data.',
     answers: 'Answer every question before the final judgment.',
-    challengerName: 'Name must contain 1–80 characters without control characters.',
     description: 'Write a short reason of up to 500 characters.',
   },
 };

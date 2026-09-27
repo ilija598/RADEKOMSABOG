@@ -1,2 +1,3 @@
-# No runtime secrets are required for signup. Configure the DB binding in wrangler.toml.
-# Keep any future local secrets in .dev.vars (ignored by Git).
+# Copy to .dev.vars for local Wrangler development and paste your own Steam key.
+# Never commit the real value; .dev.vars is ignored by Git.
+STEAM_API_KEY=replace-with-your-steam-web-api-key

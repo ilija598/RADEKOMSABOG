@@ -6,7 +6,7 @@ export async function onRequestGet({ request, env }) {
     const before = raw === null ? Number.MAX_SAFE_INTEGER : Number(raw);
     if (!Number.isSafeInteger(before) || before < 1) return json({ success: false }, 400);
     // Explicit public fields prevent future private columns from leaking into this API.
-    const { results } = await env.DB.prepare(`SELECT id, steam_nick, description, mmr, created_at,
+    const { results } = await env.DB.prepare(`SELECT id, steam_nick, steam_id, description, mmr, created_at,
       immortal_worthy, believes_rade_mortal, better_than_rade, defeated_at
       FROM challengers WHERE id < ? ORDER BY id DESC LIMIT 51`).bind(before).all();
     const challengers = results.slice(0, 50);

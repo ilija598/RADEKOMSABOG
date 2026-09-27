@@ -1,3 +1,4 @@
+import { getSteamNickname } from '../../src/steam-profile.js';
 import { validateSignup } from '../../src/validation.js';
 import { errors } from '../../src/content/errors.js';
 
@@ -46,10 +47,15 @@ export async function onRequestPost(context) {
     catch (error) { return failure(request, error.message === 'large' ? 'large' : 'invalidBody'); }
     const checked = validateSignup(data);
     if (checked.error) return failure(request, checked.errorCode);
-    const { steamNick, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade } = checked.value;
+    const { steamId, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade } = checked.value;
+    if (!context.env.STEAM_API_KEY) return failure(request, 'steamUnavailable', 503);
+    let steamNick;
+    try { steamNick = await getSteamNickname(steamId, context.env.STEAM_API_KEY, context.steamFetch ?? fetch); }
+    catch { return failure(request, 'steamUnavailable', 503); }
+    if (!steamNick) return failure(request, 'steamNotFound');
     const result = await context.env.DB.prepare(
-      'INSERT INTO challengers (steam_nick, description, mmr, immortal_worthy, believes_rade_mortal, better_than_rade) VALUES (?, ?, ?, ?, ?, ?)',
-    ).bind(steamNick, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade).run();
+      'INSERT INTO challengers (steam_nick, steam_id, description, mmr, immortal_worthy, believes_rade_mortal, better_than_rade) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    ).bind(steamNick, steamId, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade).run();
     if (!result.success) throw new Error('Write failed');
     return json({ success: true });
   } catch {
