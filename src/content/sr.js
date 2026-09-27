@@ -81,14 +81,14 @@ export default {
   signup: {
     eyebrow: '01 / TVOJE IME. NJEGOVA STATISTIKA.', title: 'PROTOKOL\nIZAZIVAČA', subtitle: 'Hram će odabrati jednog izazivača za kog veruje da je dostojan. Mi ćemo mu se javiti i pozvati ga da se bori za 50 evra. Do tada, hram pamti svaki odgovor, čak i posle reload-a.', warning: 'SAMOPOUZDANJE NIJE KVALIFIKACIJA.', warningText: 'Hram prima sve MMR kategorije.\nRade ne priznaje nijednu.', facts: ['PET KORAKA', 'DRAFT SE ČUVA', 'JEDAN FARAON'], exit: 'Možeš da se vratiš na svaki odgovor pre konačnog slanja.', panel: 'UPIS U KNJIGU IZAZIVAČA / V.03', status: 'PRIMAMO SMRTNIKE', saved: 'DRAFT SAČUVAN', progressLabel: 'Napredak kroz protokol izazivača', stepCounter: 'KORAK', yes: 'DA', no: 'NE', unanswered: 'BEZ ODGOVORA', next: 'NASTAVI', back: 'NAZAD',
     step1: { kicker: 'I / STATUS SMRTNOSTI', question: 'DA LI STE I VI IMORTAL I DA LI MISLITE DA STE DOSTOJNI PROTIVNIK?', hint: 'Dve tvrdnje. Jedna odluka. Rade već zna istinu.' },
-    step2: { kicker: 'II / TEST JERESI', question: 'DA LI VERUJETE U LAŽI DA RADE KOMŠA NIJE IMORTAL?', hint: 'Izaberite odgovor. Zatim overite svih pet pečata faraonske birokratije.' },
+    step2: { kicker: 'II / TEST JERESI', question: 'DA LI VERUJETE U LAŽI DA RADE KOMŠA NIJE IMORTAL?', hint: 'NE prolazi odmah. Ako izabereš DA, moraš overiti svih pet pečata faraonske birokratije.' },
     step3: { kicker: 'III / MERENJE EGA', question: 'DA LI MISLITE DA STE BOLJI OD RADE KOMŠE?', hint: 'DA beži i ostaje zaključano 300 sekundi. Tek zatim Faraon dozvoljava da ga kliknete. NE je dostupno odmah.' },
     pursuit: { locked: 'FARAON JOŠ NE DOZVOLJAVA ODGOVOR DA', remaining: 'DO OTKLJUČAVANJA', unlocked: '300 SEKUNDI JE PROŠLO. DA JE SADA DOSTUPNO.', denied: 'Klik je odbijen. Anubis ne priznaje prečice.', note: 'Odbrojavanje počinje otvaranjem ovog pitanja. Hram pamti vreme i posle osvežavanja stranice.' },
     heresyWarnings: {
-      label: 'UPOZORENJE / HRAM MIDLEJNA', counter: 'PEČAT', ok: 'OK', escape: 'Esc zatvara upozorenja i vraća na pitanje. Odgovor se potvrđuje tek posle svih pet pečata.',
+      label: 'UPOZORENJE / HRAM MIDLEJNA', counter: 'PEČAT', ok: 'OK', escape: 'Esc zatvara upozorenja i vraća na pitanje. Odgovor DA se potvrđuje tek posle svih pet pečata.',
       entries: [
         { title: 'ANUBIS VEĆ ZNA.', message: 'Upozorenje, Faraon Anubis će znati Vaš odgovor. Zapravo ga već zna. Ovaj prozor postoji radi papirologije.' },
-        { title: 'TEOLOGIJA NE PRIMA ŽALBE.', message: 'Faraon Anubis je bog MIDLEJNA, ne možete kliknuti NE. Ako ste ipak kliknuli, Vaš miš će biti pozvan na informativni razgovor.' },
+        { title: 'TEOLOGIJA NE PRIMA ŽALBE.', message: 'Faraon Anubis je bog MIDLEJNA. Vaš odgovor DA je prosleđen komisiji koja postoji samo da Vas nervira.' },
         { title: 'VAŠ EGO JE NA VAGI.', message: 'Na jedan tas stavljamo Vaše samopouzdanje. Na drugi Radetov poslednji last hit. Vaga je upravo podnela ostavku.' },
         { title: 'PAPIRUS PAMTI SVE.', message: 'Vaš odgovor biće uklesan u zid piramide. Brisanje istorije pregledača ne briše istoriju civilizacije.' },
         { title: 'POSLEDNJI PEČAT. ZA SADA.', message: 'Klikom na OK potvrđujete da ste upozoreni pet puta. Faraon zadržava pravo da Vaše mišljenje tretira kao dekoraciju.' },

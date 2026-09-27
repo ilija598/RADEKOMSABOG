@@ -26,20 +26,19 @@ test('reloading a saved start retains remaining time; missing/corrupt timestamps
   assert.equal(pursuitRemainingMs(start, start - 50_000), 300_000);
 });
 
-test('either answer requires five acknowledgments, preserves the choice, and cannot start parallel sequences', () => {
-  for (const answer of ['yes', 'no']) {
-    const warnings = createWarningSequence();
-    assert.equal(warnings.begin(answer), true);
-    assert.equal(warnings.begin(answer === 'yes' ? 'no' : 'yes'), false);
-    for (let i = 0; i < 4; i++) {
-      assert.equal(warnings.index, i);
-      assert.equal(warnings.acknowledge(), null);
-      assert.equal(warnings.active, true);
-    }
-    assert.equal(warnings.acknowledge(), answer);
-    assert.equal(warnings.active, false);
+test('only YES starts five acknowledgments and cannot start parallel sequences', () => {
+  const warnings = createWarningSequence();
+  assert.equal(warnings.begin('no'), false);
+  assert.equal(warnings.begin('yes'), true);
+  assert.equal(warnings.begin('yes'), false);
+  for (let i = 0; i < 4; i++) {
+    assert.equal(warnings.index, i);
     assert.equal(warnings.acknowledge(), null);
+    assert.equal(warnings.active, true);
   }
+  assert.equal(warnings.acknowledge(), 'yes');
+  assert.equal(warnings.active, false);
+  assert.equal(warnings.acknowledge(), null);
 });
 
 test('canceling a warning never confirms an answer; retry starts at warning one', () => {
@@ -50,7 +49,7 @@ test('canceling a warning never confirms an answer; retry starts at warning one'
   warnings.acknowledge();
   warnings.cancel();
   assert.equal(warnings.acknowledge(), null);
-  assert.equal(warnings.begin('no'), true);
+  assert.equal(warnings.begin('yes'), true);
   assert.equal(warnings.index, 0);
 });
 
@@ -78,6 +77,8 @@ test('custom dialog shows five localized messages and advances only after the fi
   const warnings = createHeresyWarnings({ dialog, i18n, onConfirm: answer => confirmed.push(answer) });
   const ok = dialog.querySelector('[data-warning-ok]');
   warnings.show('no');
+  assert.equal(dialog.open, false);
+  warnings.show('yes');
   assert.equal(dialog.open, true);
   assert.equal(ok.focused, true);
   for (let i = 0; i < 5; i++) {
@@ -86,9 +87,9 @@ test('custom dialog shows five localized messages and advances only after the fi
     ok.click();
   }
   assert.equal(dialog.open, false);
-  assert.deepEqual(confirmed, ['no']);
+  assert.deepEqual(confirmed, ['yes']);
   ok.click();
-  assert.deepEqual(confirmed, ['no']);
+  assert.deepEqual(confirmed, ['yes']);
   warnings.show('yes');
   ok.click();
   i18n.setLanguage('en');
@@ -97,7 +98,7 @@ test('custom dialog shows five localized messages and advances only after the fi
   assert.equal(dialog.querySelector('[data-warning-message]').textContent, translations.en.signup.heresyWarnings.entries[1].message);
   dialog.dispatchEvent(new Event('cancel'));
   dialog.close();
-  assert.deepEqual(confirmed, ['no']);
+  assert.deepEqual(confirmed, ['yes']);
   warnings.show('yes');
   assert.equal(dialog.querySelector('[data-warning-count]').textContent, 'SEAL 1 / 5');
 });

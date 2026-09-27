@@ -16,7 +16,7 @@ export function createWarningSequence() {
     get active() { return answer !== null; },
     get index() { return index; },
     begin(value) {
-      if (answer !== null || !['yes', 'no'].includes(value)) return false;
+      if (answer !== null || value !== 'yes') return false;
       answer = value;
       index = 0;
       return true;

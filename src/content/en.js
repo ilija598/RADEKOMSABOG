@@ -79,14 +79,14 @@ export default {
   signup: {
     eyebrow: '01 / YOUR NAME. HIS STATISTIC.', title: 'CHALLENGER\nPROTOCOL', subtitle: 'The temple will choose one challenger it believes is worthy. We will contact them and invite them to fight for 50 euros. Until then, the temple remembers every answer, even after a reload.', warning: 'CONFIDENCE IS NOT A QUALIFICATION.', warningText: 'The temple accepts all MMR brackets.\nRade recognizes none of them.', facts: ['FIVE STEPS', 'DRAFT SAVED', 'ONE PHARAOH'], exit: 'You can revisit every answer before the final submission.', panel: 'BOOK OF CHALLENGERS / V.03', status: 'ACCEPTING MORTALS', saved: 'DRAFT SAVED', progressLabel: 'Challenger protocol progress', stepCounter: 'STEP', yes: 'YES', no: 'NO', unanswered: 'UNANSWERED', next: 'CONTINUE', back: 'BACK',
     step1: { kicker: 'I / MORTALITY STATUS', question: 'ARE YOU ALSO IMMORTAL, AND DO YOU BELIEVE YOU ARE A WORTHY OPPONENT?', hint: 'Two claims. One decision. Rade already knows the truth.' },
-    step2: { kicker: 'II / HERESY TEST', question: 'DO YOU BELIEVE THE LIE THAT RADE KOMŠA IS NOT IMMORTAL?', hint: 'Choose an answer. Then collect all five seals of pharaonic bureaucracy.' },
+    step2: { kicker: 'II / HERESY TEST', question: 'DO YOU BELIEVE THE LIE THAT RADE KOMŠA IS NOT IMMORTAL?', hint: 'NO goes straight through. Choose YES and you must collect all five seals of pharaonic bureaucracy.' },
     step3: { kicker: 'III / EGO CALIBRATION', question: 'DO YOU THINK YOU ARE BETTER THAN RADE KOMŠA?', hint: 'YES evades you and stays locked for 300 seconds. Only then does the pharaoh permit a click. NO is available immediately.' },
     pursuit: { locked: 'THE PHARAOH DOES NOT YET PERMIT YES', remaining: 'UNLOCKS IN', unlocked: '300 SECONDS HAVE PASSED. YES IS NOW AVAILABLE.', denied: 'Click denied. Anubis does not recognize shortcuts.', note: 'The countdown starts when this question opens. The temple remembers the time even after a page reload.' },
     heresyWarnings: {
-      label: 'WARNING / TEMPLE OF MID', counter: 'SEAL', ok: 'OK', escape: 'Esc closes the warnings and returns to the question. Your answer is confirmed only after all five seals.',
+      label: 'WARNING / TEMPLE OF MID', counter: 'SEAL', ok: 'OK', escape: 'Esc closes the warnings and returns to the question. YES is confirmed only after all five seals.',
       entries: [
         { title: 'ANUBIS ALREADY KNOWS.', message: 'Warning: Pharaoh Anubis will know your answer. He already does, actually. This window is for the paperwork.' },
-        { title: 'THEOLOGY ACCEPTS NO APPEALS.', message: 'Pharaoh Anubis is the GOD OF MID. You cannot click NO. If you already did, your mouse will be summoned for questioning.' },
+        { title: 'THEOLOGY ACCEPTS NO APPEALS.', message: 'Pharaoh Anubis is the GOD OF MID. Your YES has been referred to a committee created solely to annoy you.' },
         { title: 'YOUR EGO IS ON THE SCALES.', message: 'Your confidence goes on one side. Rade’s last hit goes on the other. The scales have just submitted their resignation.' },
         { title: 'THE PAPYRUS REMEMBERS.', message: 'Your answer will be carved into a pyramid wall. Clearing browser history does not clear the history of civilization.' },
         { title: 'THE FINAL SEAL. FOR NOW.', message: 'By clicking OK, you acknowledge five separate warnings. The pharaoh reserves the right to classify your opinion as decoration.' },

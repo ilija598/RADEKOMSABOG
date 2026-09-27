@@ -33,6 +33,7 @@ export function createHeresyWarnings({ dialog, i18n, onConfirm }) {
     refresh,
     get active() { return sequence.active; },
     show(answer) {
+      if (answer !== 'yes') return;
       if (dialog.open || !sequence.begin(answer)) return;
       refresh();
       dialog.showModal();

@@ -290,7 +290,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     render();
   });
   form.querySelectorAll('[data-answer="immortalWorthy"]').forEach(button => button.addEventListener('click', () => selectAnswer('immortalWorthy', button.dataset.value)));
-  lieNo.addEventListener('click', () => { if (draft.step === 2) warnings.show('no'); });
+  lieNo.addEventListener('click', () => { if (draft.step === 2) selectAnswer('believesRadeMortal', 'no'); });
   lieYes.addEventListener('click', () => { if (draft.step === 2) warnings.show('yes'); });
   betterNo.addEventListener('click', () => selectAnswer('betterThanRade', 'no'));
   betterYes.addEventListener('mouseenter', moveEvasiveChoice);
