@@ -2,6 +2,7 @@ node_modules/
 dist/
 .wrangler/
 .dev.vars
+steamapi.txt
 .env*
 !.env.example
 *.log
