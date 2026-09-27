@@ -5,11 +5,11 @@ export async function submitSignup(payload, { language = 'sr', fetchImpl = fetch
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const { steamId, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade } = payload;
+    const { steamIdentity, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade } = payload;
     const response = await fetchImpl('/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept-Language': language },
-      body: JSON.stringify({ steamId, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade }),
+      body: JSON.stringify({ steamIdentity, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade }),
       signal: controller.signal,
     });
     let result;

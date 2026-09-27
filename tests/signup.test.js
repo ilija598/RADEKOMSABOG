@@ -7,17 +7,17 @@ const challenger = {
   immortalWorthy: 'yes',
   believesRadeMortal: 'no',
   betterThanRade: 'no',
-  steamId: '76561198000000000',
+  steamIdentity: '76561198000000000',
   mmr: 5000,
   description: 'Dostojan sam jer sam tako odlučio.',
 };
 test('validates and normalizes the five-step challenger payload', () => {
-  assert.deepEqual(validateChallenger({ ...challenger, steamId: '  76561198000000000  ', description: '  Kratak razlog.  ' }).value, { ...challenger, steamId: '76561198000000000', description: 'Kratak razlog.' });
+  assert.deepEqual(validateChallenger({ ...challenger, steamIdentity: '  76561198000000000  ', description: '  Kratak razlog.  ' }).value, { ...challenger, steamIdentity: '76561198000000000', description: 'Kratak razlog.' });
   for (const field of ['immortalWorthy', 'believesRadeMortal', 'betterThanRade']) {
     assert.equal(validateChallenger({ ...challenger, [field]: '' }).errorCode, 'answers');
     assert.equal(validateChallenger({ ...challenger, [field]: 'maybe' }).errorCode, 'answers');
   }
-  for (const steamId of ['', ' ', '123', '76561198000000000x', 'https://steamcommunity.com/profiles/76561198000000000']) assert.equal(validateChallenger({ ...challenger, steamId }).errorCode, 'steamId');
+  for (const steamIdentity of ['', ' ', '123', '76561202255233024', 'http://steamcommunity.com/profiles/76561198000000000']) assert.equal(validateChallenger({ ...challenger, steamIdentity }).errorCode, 'steamIdentity');
   for (const description of ['', ' ', 'x'.repeat(501), 'Rade\u0000']) assert.equal(validateChallenger({ ...challenger, description }).errorCode, 'description');
   for (const mmr of [-1, 20001, 1.5, '5000']) assert.equal(validateChallenger({ ...challenger, mmr }).errorCode, 'mmr');
 });

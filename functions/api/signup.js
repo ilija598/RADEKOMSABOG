@@ -1,4 +1,4 @@
-import { getSteamNickname } from '../../src/steam-profile.js';
+import { getSteamNickname, resolveSteamId } from '../../src/steam-profile.js';
 import { validateSignup } from '../../src/validation.js';
 import { errors } from '../../src/content/errors.js';
 
@@ -47,10 +47,14 @@ export async function onRequestPost(context) {
     catch (error) { return failure(request, error.message === 'large' ? 'large' : 'invalidBody'); }
     const checked = validateSignup(data);
     if (checked.error) return failure(request, checked.errorCode);
-    const { steamId, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade } = checked.value;
+    const { steamIdentity, description, mmr, immortalWorthy, believesRadeMortal, betterThanRade } = checked.value;
     if (!context.env.STEAM_API_KEY) return failure(request, 'steamUnavailable', 503);
-    let steamNick;
-    try { steamNick = await getSteamNickname(steamId, context.env.STEAM_API_KEY, context.steamFetch ?? fetch); }
+    let steamId, steamNick;
+    try {
+      steamId = await resolveSteamId(steamIdentity, context.env.STEAM_API_KEY, context.steamFetch ?? fetch);
+      if (!steamId) return failure(request, 'steamNotFound');
+      steamNick = await getSteamNickname(steamId, context.env.STEAM_API_KEY, context.steamFetch ?? fetch);
+    }
     catch { return failure(request, 'steamUnavailable', 503); }
     if (!steamNick) return failure(request, 'steamNotFound');
     const result = await context.env.DB.prepare(

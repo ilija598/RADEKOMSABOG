@@ -1,7 +1,7 @@
 export const errors = {
   sr: {
     invalidBody: 'Pošalji ispravne podatke za prijavu.',
-    steamId: 'Unesi SteamID64: 17 cifara Steam naloga, bez linka.',
+    steamIdentity: 'Unesi SteamID64 ili HTTPS Steam profil, npr. https://steamcommunity.com/id/ime/.',
     steamNotFound: 'Steam profil nije pronađen ili Steam nije vratio nick.',
     steamUnavailable: 'Steam trenutno nije dostupan. Pokušaj ponovo kasnije.',
     mmr: 'MMR mora biti ceo broj između 0 i 20.000.',
@@ -20,7 +20,7 @@ export const errors = {
   },
   en: {
     invalidBody: 'Send a valid signup object.',
-    steamId: 'Enter a SteamID64: the 17 digits of a Steam account, without a URL.',
+    steamIdentity: 'Enter a SteamID64 or HTTPS Steam profile, such as https://steamcommunity.com/id/name/.',
     steamNotFound: 'Steam profile was not found or Steam did not return a nickname.',
     steamUnavailable: 'Steam is unavailable right now. Please try again later.',
     mmr: 'MMR must be a whole number between 0 and 20,000.',

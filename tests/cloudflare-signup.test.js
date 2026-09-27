@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { onRequest, onRequestPost } from '../functions/api/signup.js';
 import { validateSignup } from '../src/validation.js';
 import { submitSignup } from '../src/signup-api.js';
-import { getSteamNickname } from '../src/steam-profile.js';
+import { getSteamNickname, parseSteamIdentity, resolveSteamId } from '../src/steam-profile.js';
 
 test('Steam nickname comes only from the fixed Steam API and matching ID', async () => {
   const steamId = '76561198000000000';
@@ -19,24 +19,26 @@ test('Steam nickname comes only from the fixed Steam API and matching ID', async
   assert.equal(await getSteamNickname(steamId, 'test-secret', async () => Response.json({ response: { players: [{ steamid: '76561198000000001', personaname: 'Impersonator' }] } })), null);
 });
 
-const valid = { steamId: '76561198000000000', description: 'I am worthy of mid.', mmr: 5000, immortalWorthy: 'da', believesRadeMortal: 'ne', betterThanRade: 'da' };
+const valid = { steamIdentity: '76561198000000000', description: 'I am worthy of mid.', mmr: 5000, immortalWorthy: 'da', believesRadeMortal: 'ne', betterThanRade: 'da' };
 const request = (body = valid, options = {}) => new Request('https://example.com/api/signup', {
   method: 'POST', ...options,
   headers: { 'Content-Type': 'application/json', Origin: 'https://example.com', ...options.headers },
   body: options.body ?? JSON.stringify(body),
 });
 
-test('accepts trimmed SteamID64 and reason with integer boundaries', () => {
-  assert.ok(validateSignup({ ...valid, steamId: '76561202255233023' }).value);
-  assert.equal(validateSignup({ ...valid, steamId: '76561202255233024' }).errorCode, 'steamId');
+test('accepts Steam profiles, vanity names, SteamID64 and MMR boundaries', () => {
+  assert.ok(validateSignup({ ...valid, steamIdentity: '76561202255233023' }).value);
+  assert.ok(validateSignup({ ...valid, steamIdentity: 'https://steamcommunity.com/id/sn0w98/' }).value);
+  assert.ok(validateSignup({ ...valid, steamIdentity: 'sn0w98' }).value);
+  assert.equal(validateSignup({ ...valid, steamIdentity: '76561202255233024' }).errorCode, 'steamIdentity');
   for (const mmr of [0, 20000]) {
-    assert.deepEqual(validateSignup({ ...valid, steamId: '  76561198000000000  ', description: '  Reason  ', mmr }).value, { ...valid, steamId: '76561198000000000', description: 'Reason', mmr });
+    assert.deepEqual(validateSignup({ ...valid, steamIdentity: '  76561198000000000  ', description: '  Reason  ', mmr }).value, { ...valid, steamIdentity: '76561198000000000', description: 'Reason', mmr });
   }
 });
 
 test('invalid input always returns 400 and never reaches D1', async () => {
   const env = { DB: { prepare() { assert.fail('Invalid data reached D1'); } } };
-  const invalid = [null, [], {}, { ...valid, steamId: '' }, { ...valid, steamId: '  ' }, { ...valid, steamId: 'x'.repeat(17) }, { ...valid, steamId: 'https://steamcommunity.com/profiles/76561198000000000' },
+  const invalid = [null, [], {}, { ...valid, steamIdentity: '' }, { ...valid, steamIdentity: '  ' }, { ...valid, steamIdentity: 'x'.repeat(65) }, { ...valid, steamIdentity: 'https://evil.example/id/sn0w98/' },
     ...['', '  ', 'x'.repeat(501), null, 123].map(description => ({ ...valid, description })),
     ...[-1, 20001, 0.5, '5000', null].map(mmr => ({ ...valid, mmr })),
   ];
@@ -70,11 +72,11 @@ test('D1 writes are parameterized, trimmed and awaited before success', async ()
   const DB = { prepare(sql) {
     assert.equal(sql, 'INSERT INTO challengers (steam_nick, steam_id, description, mmr, immortal_worthy, believes_rade_mortal, better_than_rade) VALUES (?, ?, ?, ?, ?, ?, ?)');
     return { bind(...args) {
-      assert.deepEqual(args, ['Steam Persona', input.steamId, input.description.trim(), input.mmr, input.immortalWorthy, input.believesRadeMortal, input.betterThanRade]);
+      assert.deepEqual(args, ['Steam Persona', input.steamIdentity, input.description.trim(), input.mmr, input.immortalWorthy, input.believesRadeMortal, input.betterThanRade]);
       return { run: () => write };
     } };
   } };
-  const pending = onRequestPost({ request: request(input), env: { DB, STEAM_API_KEY: 'test-key' }, steamFetch: async () => Response.json({ response: { players: [{ steamid: input.steamId, personaname: 'Steam Persona' }] } }) }).then(response => { finished = true; return response; });
+  const pending = onRequestPost({ request: request(input), env: { DB, STEAM_API_KEY: 'test-key' }, steamFetch: async () => Response.json({ response: { players: [{ steamid: input.steamIdentity, personaname: 'Steam Persona' }] } }) }).then(response => { finished = true; return response; });
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(finished, false);
   finishWrite({ success: true });
@@ -89,7 +91,7 @@ test('missing bindings, exceptions and unsuccessful D1 writes return the exact g
     { DB: { prepare: () => ({ bind: () => ({ run: async () => ({ success: false, error: 'SECRET SQL' }) }) }) } },
     { DB: { prepare: () => ({ bind: () => ({ run: async () => { throw new Error('SECRET SQL'); } }) }) } },
   ]) {
-    const response = await onRequestPost({ request: request(), env: { ...env, STEAM_API_KEY: 'test-key' }, steamFetch: async () => Response.json({ response: { players: [{ steamid: valid.steamId, personaname: 'Steam Persona' }] } }) });
+    const response = await onRequestPost({ request: request(), env: { ...env, STEAM_API_KEY: 'test-key' }, steamFetch: async () => Response.json({ response: { players: [{ steamid: valid.steamIdentity, personaname: 'Steam Persona' }] } }) });
     assert.equal(response.status, 500);
     assert.deepEqual(await response.json(), { success: false, error: 'Internal server error' });
   }
@@ -117,7 +119,7 @@ test('frontend does not treat arbitrary 200 HTML, failed status or a false body 
   for (const response of [new Response('<html>fallback</html>'), Response.json({ success: false }), Response.json({ success: true }, { status: 500 })]) {
     assert.deepEqual(await submitSignup(valid, { fetchImpl: async () => response }), { ok: false, code: 'unavailable' });
   }
-  assert.deepEqual(await submitSignup(valid, { fetchImpl: async () => Response.json({ success: false, error: 'Bad link' }, { status: 400, headers: { 'X-Error-Code': 'steamId' } }) }), { ok: false, code: 'steamId' });
+  assert.deepEqual(await submitSignup(valid, { fetchImpl: async () => Response.json({ success: false, error: 'Bad link' }, { status: 400, headers: { 'X-Error-Code': 'steamIdentity' } }) }), { ok: false, code: 'steamIdentity' });
   assert.deepEqual(await submitSignup(valid, { fetchImpl: async () => { throw new TypeError('network'); } }), { ok: false, code: 'network' });
 });
 
@@ -140,4 +142,20 @@ test('all three answers must be literal da/ne, never booleans or defaults', asyn
     }
     for (const value of ['da', 'ne']) assert.equal(validateSignup({ ...valid, [key]: value }).value[key], value);
   }
+});
+
+test('vanity resolution calls only the fixed Steam endpoint', async () => {
+  const identity = 'https://steamcommunity.com/id/sn0w98/';
+  assert.deepEqual(parseSteamIdentity(identity), { vanity: 'sn0w98' });
+  assert.deepEqual(parseSteamIdentity('https://steamcommunity.com/profiles/76561198000000000/'), { steamId: '76561198000000000' });
+  for (const input of ['http://steamcommunity.com/id/sn0w98/', 'https://steamcommunity.com.evil.test/id/sn0w98/', 'https://steamcommunity.com/groups/sn0w98', 'https://steamcommunity.com/id/sn0w98/extra', 'https://steamcommunity.com/id/sn0w98/?next=evil', 'https://user@steamcommunity.com/id/sn0w98/', 'javascript:alert(1)']) assert.equal(parseSteamIdentity(input), null);
+  const result = await resolveSteamId(identity, 'test-secret', async url => {
+    assert.equal(url.hostname, 'api.steampowered.com');
+    assert.equal(url.pathname, '/ISteamUser/ResolveVanityURL/v1/');
+    assert.equal(url.searchParams.get('vanityurl'), 'sn0w98');
+    assert.equal(url.searchParams.get('url_type'), '1');
+    return Response.json({ response: { success: 1, steamid: '76561198000000000' } });
+  });
+  assert.equal(result, '76561198000000000');
+  assert.equal(await resolveSteamId('sn0w98', 'test-secret', async () => Response.json({ response: { success: 42 } })), null);
 });

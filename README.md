@@ -64,10 +64,10 @@ Existing databases: migrations already recorded as applied are not rerun when th
 `POST /api/signup` accepts `Content-Type: application/json`:
 
 ```json
-{"steamId":"76561198000000000","description":"I am worthy of mid.","mmr":5000,"immortalWorthy":"da","believesRadeMortal":"ne","betterThanRade":"ne"}
+{"steamIdentity":"https://steamcommunity.com/id/sn0w98/","description":"I am worthy of mid.","mmr":5000,"immortalWorthy":"da","believesRadeMortal":"ne","betterThanRade":"ne"}
 ```
 
-The server validates the 17-digit SteamID64, looks up its current persona name using Steam Web API, requires a trimmed reason (maximum 500 characters), and requires an integer MMR from 0 through 20000. It uses a parameterized D1 INSERT and returns success only after the write finishes.
+The server accepts a SteamID64, vanity name, or HTTPS Steam Community profile URL; it resolves these to a SteamID64 and looks up the current persona name using Steam Web API, requires a trimmed reason (maximum 500 characters), and requires an integer MMR from 0 through 20000. It uses a parameterized D1 INSERT and returns success only after the write finishes.
 
 - Success: HTTP 200, `{"success":true}`.
 - Invalid input: HTTP 400, `{"success":false,"error":"..."}`.
@@ -106,7 +106,7 @@ Anyone can press YES on `/challengeri`; no login is required. `POST /api/challen
 
 ## Steam nickname lookup
 
-The application now asks for a numeric **SteamID64**, not a profile URL or typed nickname. After validating the ID, `POST /api/signup` calls Steam `ISteamUser/GetPlayerSummaries/v2` from the Pages Function and stores Steam's `personaname` as `steam_nick`. Set the secret before deploying this version:
+The application accepts a numeric **SteamID64**, a vanity name such as `sn0w98`, or a full `https://steamcommunity.com/id/sn0w98/` or `/profiles/<SteamID64>/` URL. The Pages Function calls Steam `ISteamUser/ResolveVanityURL/v1` when needed, then `GetPlayerSummaries/v2` and stores the canonical SteamID64 and Steam's `personaname`. Set the secret before deploying this version:
 
 ```sh
 npx wrangler pages secret put STEAM_API_KEY --project-name rade-komsa

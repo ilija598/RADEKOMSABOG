@@ -78,7 +78,7 @@ test('single layout renders both languages with complete translation bindings an
     }
     assert.match(html, /name="radekomsa-challenger"/);
     assert.doesNotMatch(html, /data-netlify|form-name/);
-    for (const field of ['immortalWorthy', 'believesRadeMortal', 'betterThanRade', 'steamId', 'mmr', 'description', 'lieYesAttempts', 'superiorityEvades', 'submissionLanguage', 'submittedAt', 'website']) assert.match(html, new RegExp(`name="${field}"`));
+    for (const field of ['immortalWorthy', 'believesRadeMortal', 'betterThanRade', 'steamIdentity', 'mmr', 'description', 'lieYesAttempts', 'superiorityEvades', 'submissionLanguage', 'submittedAt', 'website']) assert.match(html, new RegExp(`name="${field}"`));
     assert.equal((html.match(/class="form-step/g) || []).length, 5);
     assert.equal((html.match(/data-faq-id=/g) || []).length, translations[language].faq.entries.length);
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
@@ -98,7 +98,7 @@ test('quotes are centralized, bilingual, audio-ready but silent; signup always w
 });
 test('API returns translated errors and stable codes without weakening validation', async () => {
   for (const language of ['sr', 'en']) {
-    const request = new Request('https://example.com/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept-Language': language }, body: JSON.stringify({ steamId: '76561198000000000', description: 'A worthy challenger', mmr: 20001 }) });
+    const request = new Request('https://example.com/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept-Language': language }, body: JSON.stringify({ steamIdentity: '76561198000000000', description: 'A worthy challenger', mmr: 20001 }) });
     const response = await onRequestPost({ request, env: {} });
     assert.equal(response.status, 400);
     assert.equal(response.headers.get('Content-Language'), language);

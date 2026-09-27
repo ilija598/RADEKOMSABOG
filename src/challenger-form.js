@@ -43,7 +43,7 @@ const blankDraft = () => ({
   immortalWorthy: '',
   believesRadeMortal: '',
   betterThanRade: '',
-  steamId: '',
+  steamIdentity: '',
   mmr: '',
   description: '',
   lieYesAttempts: 0,
@@ -62,7 +62,7 @@ function loadDraft(storage) {
       immortalWorthy: choice(value.immortalWorthy),
       believesRadeMortal: choice(value.believesRadeMortal),
       betterThanRade: choice(value.betterThanRade),
-      steamId: typeof value.steamId === 'string' ? value.steamId.slice(0, 17) : '',
+      steamIdentity: typeof value.steamIdentity === 'string' ? value.steamIdentity.slice(0, 200) : typeof value.steamId === 'string' ? value.steamId.slice(0, 200) : '',
       mmr: typeof value.mmr === 'string' || typeof value.mmr === 'number' ? String(value.mmr).slice(0, 5) : '',
       description: typeof value.description === 'string' ? value.description.slice(0, 500) : '',
       lieYesAttempts: Math.min(HERESY_WARNING_COUNT, Math.max(0, Number.parseInt(value.lieYesAttempts, 10) || 0)),
@@ -74,7 +74,7 @@ function loadDraft(storage) {
     if (!draft.immortalWorthy) draft.step = 1;
     else if (!draft.believesRadeMortal) draft.step = Math.min(draft.step, 2);
     else if (!draft.betterThanRade) draft.step = Math.min(draft.step, 3);
-    else if (!draft.steamId.trim() || !draft.mmr.trim() || !draft.description.trim()) draft.step = Math.min(draft.step, 4);
+    else if (!draft.steamIdentity.trim() || !draft.mmr.trim() || !draft.description.trim()) draft.step = Math.min(draft.step, 4);
     return draft;
   } catch {
     return fallback;
@@ -95,7 +95,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
   const betterYes = $('#better-yes');
   const betterNo = $('#better-no');
   const arena = $('#evasive-arena');
-  const detailFields = ['steamId', 'mmr', 'description'];
+  const detailFields = ['steamIdentity', 'mmr', 'description'];
   let draft = loadDraft(storage);
   let busy = false;
   let announced = false;
@@ -131,7 +131,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     immortalWorthy: draft.immortalWorthy,
     believesRadeMortal: draft.believesRadeMortal,
     betterThanRade: draft.betterThanRade,
-    steamId: draft.steamId,
+    steamIdentity: draft.steamIdentity,
     mmr: draft.mmr.trim() ? Number(draft.mmr) : NaN,
     description: draft.description,
   });
@@ -172,7 +172,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
     $('#review-immortal').textContent = answer(draft.immortalWorthy);
     $('#review-lies').textContent = answer(draft.believesRadeMortal);
     $('#review-better').textContent = answer(draft.betterThanRade);
-    $('#review-name').textContent = draft.steamId;
+    $('#review-name').textContent = draft.steamIdentity;
     $('#review-mmr').textContent = draft.mmr;
     $('#review-description').textContent = draft.description;
   }
@@ -233,7 +233,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
   function validateDetails() {
     const checked = validateChallenger(payload());
     if (!checked.error) {
-      draft.steamId = checked.value.steamId;
+      draft.steamIdentity = checked.value.steamIdentity;
       draft.description = checked.value.description;
       draft.mmr = String(checked.value.mmr);
       return checked;
@@ -276,7 +276,7 @@ export function createChallengerForm({ i18n, storage, isMotionPaused, onAnnounce
 
   async function saveSubmission() {
     const answers = Object.fromEntries(['immortalWorthy', 'believesRadeMortal', 'betterThanRade'].map(key => [key, draft[key] === 'yes' ? 'da' : draft[key] === 'no' ? 'ne' : '']));
-    return submitSignup({ ...answers, steamId: draft.steamId.trim(), description: draft.description.trim(), mmr: draft.mmr.trim() ? Number(draft.mmr) : NaN }, { language: i18n.language });
+    return submitSignup({ ...answers, steamIdentity: draft.steamIdentity.trim(), description: draft.description.trim(), mmr: draft.mmr.trim() ? Number(draft.mmr) : NaN }, { language: i18n.language });
   }
 
   form.addEventListener('focusin', announce, { once: true });
